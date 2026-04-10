@@ -1,8 +1,10 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import CreateEventBtn from './components/UI/CreateEventBtn';
 
-const DispalyMap = dynamic(() => import('./components/Map/MapContainer'), {
+
+const DisplayMap = dynamic(() => import('./components/Map/MapContainer'), {
   ssr: false,
   loading: () => <p>Laster kartet...</p>,
 });
@@ -11,7 +13,8 @@ export default function MapPage() {
     return (
 
         <div>
-      <DispalyMap />
+        <CreateEventBtn />
+      <DisplayMap />
       <link
         rel="stylesheet"
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
