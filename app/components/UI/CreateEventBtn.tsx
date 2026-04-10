@@ -10,7 +10,7 @@ const CreateEventBtn: React.FC<CreateEventBtnProps> = ({ onClick, isSelectingLoc
   return (
     <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[1000]">
       <button
-        
+        onClick={ onClick }
         className={`
           flex items-center gap-2 px-6 py-3 rounded-full font-bold shadow-2xl transition-all active:scale-95
           ${isSelectingLocation 

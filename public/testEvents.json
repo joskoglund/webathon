@@ -1,0 +1,57 @@
+[
+  {
+    "id": "ev-001",
+    "title": "Exam Prep: Calc 1",
+    "category": "Study",
+    "attendees": 8,
+    "maxAttendees": 12,
+    "time": "14:00 - 17:00",
+    "heatLevel": "Medium",
+    "description": "Cracking integration by parts at the library. Bring coffee and your thickest notebook.",
+    "coordinates": [60.389, 5.332]
+  },
+  {
+    "id": "ev-002",
+    "title": "Sunset Spikeball",
+    "category": "Sports",
+    "attendees": 16,
+    "maxAttendees": 20,
+    "time": "18:00 - 20:30",
+    "heatLevel": "High",
+    "description": "Casual tournament at Nygårdsparken. We have 3 nets, come join the rotation!",
+    "coordinates": [60.384, 5.328]
+  },
+  {
+    "id": "ev-003",
+    "title": "Park Clean Up",
+    "category": "Volunteer",
+    "attendees": 5,
+    "maxAttendees": 15,
+    "time": "10:00 - 12:00",
+    "heatLevel": "Low",
+    "description": "Keeping our green spaces clean. Gloves and bags provided by the Student Union.",
+    "coordinates": [60.388, 5.322]
+  },
+  {
+    "id": "ev-004",
+    "title": "Board Game Night",
+    "category": "Social",
+    "attendees": 22,
+    "maxAttendees": 25,
+    "time": "19:00 - 23:00",
+    "heatLevel": "High",
+    "description": "Settlers of Catan, Codenames, and more. Snacks are on us!",
+    "coordinates": [60.392, 5.325]
+  },
+  {
+    "id": "ev-005",
+    "title": "JavaScript Workshop",
+    "category": "Study",
+    "attendees": 10,
+    "maxAttendees": 10,
+    "time": "16:00 - 18:00",
+    "heatLevel": "Medium",
+    "description": "Learning React hooks and Next.js basics. Fully booked but check back for cancellations.",
+    "coordinates": [60.381, 5.331]
+  }
+]
