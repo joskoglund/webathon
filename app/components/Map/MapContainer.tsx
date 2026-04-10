@@ -12,6 +12,13 @@ const icon = L.icon({
   iconAnchor: [12, 41]
 })
 
+const customIcon = L.divIcon({
+  className: 'custom-div-icon',
+  html: "<div style='background-color: #3b82f6; border-radius: 50%; width: 15px; height: 15px; border: 2px solid white;'></div>",
+  iconSize: [20, 20],
+  iconAnchor: [10, 10]
+});
+
 export default function Map() {
   const position: [number, number] = [60.389, 5.332] // Bergen / Campus
 
@@ -19,13 +26,14 @@ export default function Map() {
     <LeafletMapContainer 
       center={position} 
       zoom={15} 
+      zoomControl={false}
       style={{ height: '1000px', width: '100%' }}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
       />
-      <Marker position={position} icon={icon}>
+      <Marker position={position} icon={customIcon}>
         <Popup>
           Her skjer det! <br /> Hackathon hub.
         </Popup>
