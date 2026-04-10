@@ -1,6 +1,6 @@
 import React from 'react';
 import { MoveLeft, HelpCircle } from 'lucide-react';
-import { Link } from 'react-router-dom'; // Or your specific router link
+import Link from "next/link";
 
 const NotFound: React.FC = () => {
   return (
@@ -20,7 +20,7 @@ const NotFound: React.FC = () => {
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-x-6">
           {/* Main Action */}
           <Link
-            to="/"
+            href="/"
             className="flex items-center gap-2 rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all active:scale-95"
           >
             <MoveLeft size={18} />
@@ -29,7 +29,7 @@ const NotFound: React.FC = () => {
           
           {/* Secondary Action */}
           <Link 
-            to="/support" 
+            href="/support" 
             className="flex items-center gap-2 text-sm font-semibold text-gray-900 hover:text-indigo-600 transition-colors"
           >
             <HelpCircle size={18} />

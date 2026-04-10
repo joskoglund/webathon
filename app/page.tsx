@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
+import CreateEventBtn from './components/UI/CreateEventBtn';
 
 const DisplayMap = dynamic(() => import('./components/Map/MapContainer'), {
   ssr: false,
@@ -40,10 +41,14 @@ export default function MapPage() {
         </div>
       )}
 
-      <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      />
+      <div>
+        <CreateEventBtn onClick={() => console.log()} />
+        <DisplayMap />
+        <link
+          rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        />
+      </div>
     </div>
   );
 }
