@@ -1,13 +1,13 @@
 # Webathon 2026
 
-# \StudMapper
+# StudMapper
 
-\Hustlers
+Hustlers
 
 ## Medlemmer
 
-- \Karl-Gustav
-- \Jo 
+- Karl-Gustav
+- Jo 
 
 ## Beskrivelse
 
