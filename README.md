@@ -1,6 +1,6 @@
 # Webathon 2026
 
-# StudMapper
+# StudentWhere
 
 Hustlers
 
@@ -11,7 +11,7 @@ Hustlers
 
 ## Beskrivelse
 
-\<beskrivelse av prosjektet (ide, hva det løser osv)?>
+Sosialt student kart, fungerer litt som snapman der studenter kan sette ned pins på ett kart der man starter ett "Event", Både for å holde åpne studie grupper men også for å ha åpne fester, møter, whatever, en uofisiel webcom event liste.
 
 
 
@@ -24,5 +24,3 @@ pnpm dev
 ```
 
 ## Bilder
-
-\<screenshots av prosjektet (blir også postet på webathon siden på echo.uib.no)>
