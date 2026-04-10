@@ -7,17 +7,25 @@ import CreateEventBtn from './components/UI/CreateEventBtn';
 
 const DisplayMap = dynamic(() => import('./components/Map/MapContainer'), {
   ssr: false,
-  loading: () => <p>Laster kartet...</p>,
+  loading: () => <div className="h-screen w-full bg-slate-100 animate-pulse flex items-center justify-center">Laster kartet...</div>,
 });
 
 export default function MapPage() {
+  const [isSelectingLocation, setIsSelectingLocation] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+
+  const toggleSelectionMode = () => {
+    setIsSelectingLocation((prev) => !prev);
+  };
 
   return (
     <div className="relative h-screen w-full">
-      <DisplayMap />
-
-      {/* Settings button */}
+      <CreateEventBtn 
+        onClick={toggleSelectionMode} 
+        isSelectingLocation={isSelectingLocation} 
+      />
+           {/* Settings button */}
       <button
         type="button"
         aria-label="Open settings menu"
@@ -40,17 +48,20 @@ export default function MapPage() {
           <p className="text-sm text-gray-600 mb-3">Legg til innstillinger her.</p>
         </div>
       )}
+      {/* Pass the state to the map */}
+      <DisplayMap 
+        isSelectingLocation={isSelectingLocation} 
+        onLocationSelected={(latlng) => {
+          console.log("New Event at:", latlng);
+          setIsSelectingLocation(false); // Turn off mode after placement
+          // Logic to open your form or popup goes here
+        }}
+      />
 
-      <div>
-        <CreateEventBtn onClick={() => console.log()} />
-        <div className="relative h-dvh w-full overflow-hidden">
-          <DisplayMap />
-        </div>
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        />
-      </div>
+      <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      />
     </div>
   );
 }
