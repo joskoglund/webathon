@@ -43,7 +43,9 @@ export default function MapPage() {
 
       <div>
         <CreateEventBtn onClick={() => console.log()} />
-        <DisplayMap />
+        <div className="relative h-dvh w-full overflow-hidden">
+          <DisplayMap />
+        </div>
         <link
           rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
