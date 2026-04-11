@@ -17,12 +17,20 @@ const defaultIcon = L.icon({
 })
 
 // Your blue dot icon
-const customIcon = L.divIcon({
-  className: 'custom-div-icon',
-  html: "<div style='background-color: #3b82f6; border-radius: 50%; width: 15px; height: 15px; border: 2px solid white;'></div>",
-  iconSize: [20, 20],
-  iconAnchor: [10, 10]
-});
+const categoryColors: Record<StudentEvent['category'], string> = {
+  Sports: '#10b981',
+  Volunteer: '#3b82f6',
+  Study: '#8b5cf6',
+  Social: '#f59e0b',
+};
+
+const createCategoryIcon = (category: StudentEvent['category']) =>
+  L.divIcon({
+    className: 'custom-div-icon',
+    html: `<div style='background-color: ${categoryColors[category]}; border-radius: 50%; width: 15px; height: 15px; border: 2px solid white;'></div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  });
 
 interface MapProps {
   isSelectingLocation: boolean;
@@ -60,8 +68,7 @@ export default forwardRef(function CampusMap(
   const popupRefs = useRef<Record<number, L.Popup | null>>({});
   const position: [number, number] = [60.389, 5.332] // Bergen / Campus
   const [events, setEvents] = useState<StudentEvent[]>([]);
-
-
+  
   const refreshEvents = async () => {
     const dbEvents = await getMapEvents();
     setEvents(dbEvents);
@@ -96,7 +103,7 @@ export default forwardRef(function CampusMap(
 
       {/* Pre-existing Demo Markers */}
       {events.map((event) => (
-        <Marker key={event.id} position={[event.latitude, event.longitude]} icon={customIcon}>
+        <Marker key={event.id} position={[event.latitude, event.longitude]} icon={createCategoryIcon(event.category)}>
           <Popup ref={(ref) => { popupRefs.current[event.id] = ref; }}>
             <EventPopup
               eventId={event.id}
