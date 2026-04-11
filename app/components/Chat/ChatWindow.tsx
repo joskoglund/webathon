@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react'; // Changed Cross to X for a standard look
 import { StudentEvent, ChatMessage } from '@/types/events';
 import { getEventChat } from '../Event/EventGetter';
+import ChatInput from './ChatInput';
 
 interface ChatWindowProps {
     event: StudentEvent;
@@ -14,16 +15,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ event, userName, onClose }) => 
     const [loading, setLoading] = useState(true);
   
     useEffect(() => {
-      let active = true;
-  
       (async () => {
-        setLoading(true);
-        const fetchedChat = await getEventChat(event.id);
-        if (active) {
-          setChats(fetchedChat ?? null);
-          setLoading(false);
-        }
-      })});
+        const dbChats = await getEventChat(event.id);
+        setChats(dbChats);
+      })();
+    }, []);
 
   return (
     <div className="flex flex-col h-screen w-full bg-white z-[1010] absolute left-0 top-0 transition-all duration-300 ease-in-out shadow-2xl">
@@ -92,18 +88,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ event, userName, onClose }) => 
           </div>
         )}
       </div>
-
-      {/* --- Footer (Message Input Placeholder) --- */}
-      <div className="p-4 border-t border-slate-100 bg-white">
-        <div className="flex gap-2">
-          <input 
-            type="text" 
-            placeholder="Type a message..." 
-            className="flex-1 bg-slate-100 border-none rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-          />
-        </div>
-      </div>
-    </div>
+    
+    <ChatInput onSendMessage={(text) => console.log("Save to Supabase:", text)} />    </div>
   );
 };
 

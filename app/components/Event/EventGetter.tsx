@@ -101,16 +101,16 @@ export async function getEventChat(eventId : number): Promise<ChatMessage[] | []
   const { data, error } = await supabase
     .from('chatMessages')
     .select('id, userName, eventID, message, time')
-    .eq('eventID', eventId)
+    // Filter for the specific eventId
+    .eq('eventID', eventId) 
+    // Optional: Sort by time so the chat is in order
+    .order('time', { ascending: true });
 
   if (error) {
     console.error('Failed to fetch messages:', error.message);
     return [];
   }
 
-  const messages = (data ?? []) as ChatMessage[];
-
-  console.log(`event recived ${messages.at(0)?.userName}`);
-
-  return messages
+  // Ensure data exists, otherwise return empty array
+  return (data ?? []) as ChatMessage[];
 }
