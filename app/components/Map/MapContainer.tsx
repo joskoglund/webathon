@@ -173,7 +173,7 @@ export default forwardRef(function CampusMap(
         isSelectingLocation={isSelectingLocation} 
         onLocationSelected={onLocationSelected}
       />
-
+      <MapController event={currentEvent} markerRefs={markerRefs}/>
       {filteredEvents.map((event) => (
         <Marker 
           key={event.id} 
