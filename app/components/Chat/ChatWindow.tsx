@@ -1,25 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react'; // Changed Cross to X for a standard look
 import { StudentEvent, ChatMessage } from '@/types/events';
-import { getEventChat } from '../Event/EventGetter';
+import { createChatMessage, getEventChat } from '../Event/EventGetter';
 import ChatInput from './ChatInput';
 
 interface ChatWindowProps {
     event: StudentEvent;
-    userName: string; // Changed String to string (TS best practice)
     onClose: () => void;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ event, userName, onClose }) => {
-    const [chats, setChats] = useState<ChatMessage[] | []>([]);
-    const [loading, setLoading] = useState(true);
-  
+const ChatWindow: React.FC<ChatWindowProps> = ({ event, onClose }) => {
+    const [chats, setChats] = useState<ChatMessage[] | []>([]);  
     useEffect(() => {
       (async () => {
         const dbChats = await getEventChat(event.id);
         setChats(dbChats);
       })();
-    }, []);
+    }, [chats]);
+
+    const currentUser = localStorage.getItem('userName') || 'Anonymous';
 
   return (
     <div className="flex flex-col h-screen w-full bg-white z-[1010] absolute left-0 top-0 transition-all duration-300 ease-in-out shadow-2xl">
@@ -29,7 +28,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ event, userName, onClose }) => 
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-slate-800">{event.title}</h1>
-            <p className="text-xs text-slate-500">Logged in as {userName}</p>
+            <p className="text-xs text-slate-500">Logged in as {currentUser}</p>
           </div>
           
           {/* CLOSE BUTTON */}
@@ -53,17 +52,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ event, userName, onClose }) => 
             >
               {/* Avatar */}
               <div className="relative flex-shrink-0">
-                {chat.avatarUrl ? (
-                  <img 
-                    src={chat.avatarUrl} 
-                    alt={chat.userName} 
-                    className="w-10 h-10 rounded-full object-cover border border-slate-100"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold border border-indigo-200">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold border border-indigo-200">
                     {chat.userName.charAt(0)}
-                  </div>
-                )}
+                </div>
               </div>
 
               {/* Content */}
@@ -89,7 +80,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ event, userName, onClose }) => 
         )}
       </div>
     
-    <ChatInput onSendMessage={(text) => console.log("Save to Supabase:", text)} />    </div>
+    <ChatInput onSendMessage={(text) => {
+        console.log("Save to Supabase:", text); 
+        createChatMessage(event.id, currentUser, text);
+        setChats([])
+    }} />    
+    </div>
   );
 };
 

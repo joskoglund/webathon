@@ -114,3 +114,19 @@ export async function getEventChat(eventId : number): Promise<ChatMessage[] | []
   // Ensure data exists, otherwise return empty array
   return (data ?? []) as ChatMessage[];
 }
+export async function createChatMessage(eventID : number, userName : string, message : string): Promise<(string | null)> {
+  const { error } = await supabase
+    .from('chatMessages')
+    .insert({
+      eventID: eventID,
+      userName: userName,
+      message: message
+    });
+
+  if (error) {
+    console.error('Failed to send message:', error.message);
+    return null;
+  }
+
+  return message;
+}

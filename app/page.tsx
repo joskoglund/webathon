@@ -10,6 +10,7 @@ import { createEvent } from './components/Event/EventGetter';
 import ChatWindow from './components/Chat/ChatWindow';
 import { StudentEvent } from '@/types/events';
 import { getMapEvents } from './components/Event/EventGetter';
+import NameEntryPopup from './components/UI/EntryPopup';
 
 const DisplayMap = dynamic(() => import('./components/Map/MapContainer'), {
   ssr: false,
@@ -29,7 +30,9 @@ export default function MapPage() {
   };
  
   return (
+    
     <div className="relative h-screen w-full">
+      <NameEntryPopup />
       <CreateEventBtn 
         onClick={toggleSelectionMode} 
         isSelectingLocation={isSelectingLocation} 
@@ -105,7 +108,6 @@ export default function MapPage() {
       {activeChatEvent && (
         <ChatWindow 
           event={activeChatEvent} 
-          userName="Demo_User"
           onClose={() => setActiveChatEvent(null)} 
         />
       )}
