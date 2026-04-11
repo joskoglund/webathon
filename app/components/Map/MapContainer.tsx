@@ -3,9 +3,9 @@
 import { MapContainer as LeafletMapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import EventPopup from '../UI/EventPopup'; // Assuming you saved the previous component here
-import { StudentEvent, ChatMessage } from '@/types/events';
+import { StudentEvent } from '@/types/events';
 import { getMapEvents } from '../Event/EventGetter';
 
 // Standard Marker Icon Fix
@@ -27,14 +27,17 @@ const customIcon = L.divIcon({
 interface MapProps {
   isSelectingLocation: boolean;
   onLocationSelected: (latlng: L.LatLng) => void;
+  draftLocation?: { lat: number; lng: number } | null;
+  showDraftMarker?: boolean;
+  onDraftLocationChange?: (latlng: L.LatLng) => void;
+  onRefreshEvents?: () => void;
 }
 
 // Sub-component to handle map interactions
-function MapClickHandler({ isSelectingLocation, onLocationSelected, setTempMarker }: any) {
+function MapClickHandler({ isSelectingLocation, onLocationSelected }: { isSelectingLocation: boolean; onLocationSelected: (latlng: L.LatLng) => void }) {
   useMapEvents({
     click(e) {
       if (isSelectingLocation) {
-        setTempMarker(e.latlng); // Show a preview marker immediately
         onLocationSelected(e.latlng); // Tell the parent component
       }
     },
@@ -42,17 +45,31 @@ function MapClickHandler({ isSelectingLocation, onLocationSelected, setTempMarke
   return null;
 }
 
-export default function Map({ isSelectingLocation, onLocationSelected }: MapProps) {
-  const [tempMarker, setTempMarker] = useState<L.LatLng | null>(null);
+export default forwardRef(function CampusMap(
+  {
+    isSelectingLocation,
+    onLocationSelected,
+    draftLocation = null,
+    showDraftMarker = false,
+    onDraftLocationChange,
+  }: Readonly<MapProps>,
+  ref
+) {
   const [events, setEvents] = useState<StudentEvent[]>([]);
   const popupRefs = useRef<Record<number, L.Popup | null>>({});
   const position: [number, number] = [60.389, 5.332] // Bergen / Campus
 
+  const refreshEvents = async () => {
+    const dbEvents = await getMapEvents();
+    setEvents(dbEvents);
+  };
+
+  useImperativeHandle(ref, () => ({
+    refresh: refreshEvents,
+  }), []);
+
   useEffect(() => {
-    (async () => {
-      const dbEvents = await getMapEvents();
-      setEvents(dbEvents);
-    })();
+    refreshEvents();
   }, []);
 
   return (
@@ -72,7 +89,6 @@ export default function Map({ isSelectingLocation, onLocationSelected }: MapProp
       <MapClickHandler 
         isSelectingLocation={isSelectingLocation} 
         onLocationSelected={onLocationSelected}
-        setTempMarker={setTempMarker}
       />
 
       {/* Pre-existing Demo Markers */}
@@ -89,16 +105,26 @@ export default function Map({ isSelectingLocation, onLocationSelected }: MapProp
       ))}
 
       {/* Temporary "New Event" Marker */}
-      {tempMarker && (
-        <Marker position={tempMarker} icon={defaultIcon}>
+      {showDraftMarker && draftLocation && (
+        <Marker
+          position={[draftLocation.lat, draftLocation.lng]}
+          icon={defaultIcon}
+          draggable
+          eventHandlers={{
+            dragend: (event) => {
+              const marker = event.target as L.Marker;
+              onDraftLocationChange?.(marker.getLatLng());
+            },
+          }}
+        >
           <Popup>
              <div className="p-2">
                 <p className="font-bold text-indigo-600">New Event Location</p>
-                <p className="text-xs text-gray-500">Finish setting up your event details.</p>
+                <p className="text-xs text-gray-500">Drag this pin to adjust the event location.</p>
              </div>
           </Popup>
         </Marker>
       )}
     </LeafletMapContainer>
-  )
-}
+  );
+});

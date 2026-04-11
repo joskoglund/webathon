@@ -5,8 +5,8 @@ import { createClient } from '@supabase/supabase-js';
 
 // Create a single supabase client for interacting with your database
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
 );
 
 export async function getMapEvents(): Promise<StudentEvent[]> {
@@ -51,4 +51,27 @@ export async function getEvent(eventId : number): Promise<StudentEvent | null> {
     startTime: event.startTime ? new Date(event.startTime) : new Date(0),
     endTime: event.endTime ? new Date(event.endTime) : new Date(0),
   };
+}
+
+export async function createEvent(newEvent: StudentEvent): Promise<StudentEvent | null> {
+  const { error } = await supabase
+    .from('events')
+    .insert({
+      title: newEvent.title,
+      description: newEvent.description,
+      latitude: newEvent.latitude,
+      longitude: newEvent.longitude,
+      category: newEvent.category,
+      startTime: newEvent.startTime.toISOString(),
+      endTime: newEvent.endTime.toISOString(),
+      attendeeCount: 0,
+      maxAttendees: newEvent.maxAttendees,
+    });
+
+  if (error) {
+    console.error('Failed to create event:', error.message);
+    return null;
+  }
+
+  return newEvent;
 }
