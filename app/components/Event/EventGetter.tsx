@@ -1,13 +1,7 @@
 'use client';
 
 import { ChatMessage, StudentEvent } from '@/types/events';
-import { createClient } from '@supabase/supabase-js';
-
-// Create a single supabase client for interacting with your database
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
-); 
+import { supabase } from "@/lib/supabase";
 
 export async function getMapEvents(): Promise<StudentEvent[]> {
   const { data, error } = await supabase
