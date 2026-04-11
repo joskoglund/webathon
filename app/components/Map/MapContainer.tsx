@@ -103,18 +103,10 @@ export default forwardRef(function CampusMap(
 
   const handleJoinToggle = async (eventId: number) => {
     if (isEventJoinedLocally(eventId)) {
-      const left = await leaveEvent(eventId);
-      if (left) {
-        await refreshEvents();
-      }
-      return left;
+      return await leaveEvent(eventId);
     }
 
-    const joined = await joinEvent(eventId);
-    if (joined) {
-      await refreshEvents();
-    }
-    return joined;
+    return await joinEvent(eventId);
   };
 
   useImperativeHandle(ref, () => ({
