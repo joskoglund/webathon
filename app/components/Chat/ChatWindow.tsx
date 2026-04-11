@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react'; // Changed Cross to X for a standard look
 import { StudentEvent, ChatMessage } from '@/types/events';
+import { getEventChat } from '../Event/EventGetter';
 
 interface ChatWindowProps {
     event: StudentEvent;
@@ -9,8 +10,20 @@ interface ChatWindowProps {
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ event, userName, onClose }) => {
-  // Filter chats to only show messages for this specific event
-  const filteredChats = chatData.filter((chat: ChatMessage) => chat.eventId === event.id);
+    const [chats, setChats] = useState<ChatMessage[] | []>([]);
+    const [loading, setLoading] = useState(true);
+  
+    useEffect(() => {
+      let active = true;
+  
+      (async () => {
+        setLoading(true);
+        const fetchedChat = await getEventChat(event.id);
+        if (active) {
+          setChats(fetchedChat ?? null);
+          setLoading(false);
+        }
+      })});
 
   return (
     <div className="flex flex-col h-screen w-full bg-white z-[1010] absolute left-0 top-0 transition-all duration-300 ease-in-out shadow-2xl">
@@ -36,8 +49,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ event, userName, onClose }) => 
 
       {/* --- Message List --- */}
       <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50">
-        {filteredChats.length > 0 ? (
-          filteredChats.map((chat: ChatMessage) => (
+        {chats.length > 0 ? (
+          chats.map((chat: ChatMessage) => (
             <div
               key={chat.id}
               className="w-full flex items-start p-4 gap-3 border-b border-slate-50 last:border-0 bg-white"

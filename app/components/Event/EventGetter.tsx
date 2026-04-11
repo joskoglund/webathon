@@ -1,6 +1,6 @@
 'use client';
 
-import { StudentEvent } from '@/types/events';
+import { ChatMessage, StudentEvent } from '@/types/events';
 import { createClient } from '@supabase/supabase-js';
 
 // Create a single supabase client for interacting with your database
@@ -72,4 +72,22 @@ export async function getEvent(eventId : number): Promise<StudentEvent | null> {
     startTime: event.startTime ? new Date(event.startTime) : new Date(0),
     endTime: event.endTime ? new Date(event.endTime) : new Date(0),
   };
+}
+
+export async function getEventChat(eventId : number): Promise<ChatMessage[] | []> {
+  const { data, error } = await supabase
+    .from('chatMessages')
+    .select('id, userName, eventID, message, time')
+    .eq('eventID', eventId)
+
+  if (error) {
+    console.error('Failed to fetch messages:', error.message);
+    return [];
+  }
+
+  const messages = (data ?? []) as ChatMessage[];
+
+  console.log(`event recived ${messages.at(0)?.userName}`);
+
+  return messages
 }
