@@ -16,7 +16,6 @@ export interface ChatMessage {
   id: number;
   eventID: string;
   userName: string;
-  avatarUrl?: string;
   time: string;
   message: string;
 }
