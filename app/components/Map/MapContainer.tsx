@@ -27,7 +27,11 @@ async function getEvents(): Promise<StudentEvent[]> {
 
   console.log(`events recived ${events.at(0)?.title}`);
 
-  return events;
+  return events.map((event) => ({
+    ...event,
+    startTime: event.startTime ? new Date(event.startTime) : new Date(0),
+    endTime: event.endTime ? new Date(event.endTime) : new Date(0),
+  }));
 }
 
 // Standard Marker Icon Fix
