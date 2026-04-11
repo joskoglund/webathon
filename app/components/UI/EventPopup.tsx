@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, MessageSquare, Calendar } from 'lucide-react';
 import { StudentEvent } from '@/types/events';
-import { getEvent, isEventJoinedLocally } from '../Event/EventGetter';
+import { getEvent, getEventRegistrationNames, isEventJoinedLocally } from '../Event/EventGetter';
 
 interface EventPopupProps {
   eventId: number;
@@ -28,6 +28,7 @@ function isSameCalendarDay(start: Date, end: Date): boolean {
 
 const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady, onOpenChat }) => {
   const [event, setEvent] = useState<StudentEvent | null>(null);
+  const [joinedNames, setJoinedNames] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [isJoined, setIsJoined] = useState(false);
 
@@ -36,9 +37,13 @@ const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady
 
     (async () => {
       setLoading(true);
-      const fetchedEvent = await getEvent(eventId);
+      const [fetchedEvent, fetchedNames] = await Promise.all([
+        getEvent(eventId),
+        getEventRegistrationNames(eventId),
+      ]);
       if (active) {
         setEvent(fetchedEvent ?? null);
+        setJoinedNames(fetchedNames);
         setIsJoined(isEventJoinedLocally(eventId));
         setLoading(false);
       }
@@ -56,10 +61,16 @@ const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady
   }, [loading, event, onContentReady]);
 
   const refreshEvent = async () => {
-    const updatedEvent = await getEvent(eventId);
+    const [updatedEvent, fetchedNames] = await Promise.all([
+      getEvent(eventId),
+      getEventRegistrationNames(eventId),
+    ]);
+
     if (updatedEvent) {
       setEvent(updatedEvent);
     }
+
+    setJoinedNames(fetchedNames);
   };
 
   let eventDateLabel = '';
@@ -71,6 +82,8 @@ const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady
 
   if (loading) return <div className="w-64 p-3 text-sm text-slate-500">Loading event...</div>;
   if (!event) return <div className="w-64 p-3 text-sm text-red-500">Event not found.</div>;
+
+  const attendeesForDisplay = Array.from({ length: event.attendeeCount }, (_, index) => joinedNames[index] ?? 'Anonymous');
 
 
   // Logic to determine colors based on category
@@ -142,13 +155,23 @@ const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady
       </div>
 
       {/* Footer Info */}
-      <div className="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center">
-        <span className="text-[10px] text-slate-400 font-medium">Click pin for details</span>
+      <div className="mt-3 pt-2 border-t border-slate-100 flex justify-end items-center">
         <div className="flex -space-x-2">
-          {/* Avatar placeholders using different shades of gray for variety */}
-          <div className="w-5 h-5 rounded-full border-2 border-white bg-slate-300" />
-          <div className="w-5 h-5 rounded-full border-2 border-white bg-slate-400" />
-          <div className="w-5 h-5 rounded-full border-2 border-white bg-slate-200" />
+          {attendeesForDisplay.map((name, index) => (
+            <div key={`${name}-${index}`} className="relative group">
+              <div
+                className="w-5 h-5 rounded-full border-2 border-white bg-slate-400 text-white text-[10px] font-semibold flex items-center justify-center"
+              >
+                {name.charAt(0).toUpperCase()}
+              </div>
+              <span
+                className="pointer-events-none absolute left-1/2 top-full z-20 mt-1 -translate-x-1/2 whitespace-nowrap rounded bg-slate-900 px-2 py-1 text-[10px] text-white opacity-0 shadow transition-opacity duration-150 group-hover:opacity-100"
+                role="tooltip"
+              >
+                {name}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

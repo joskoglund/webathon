@@ -70,6 +70,21 @@ export async function getEvent(eventId : number): Promise<StudentEvent | null> {
   };
 }
 
+export async function getEventRegistrationNames(eventId: number): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('eventRegistration')
+    .select('name')
+    .eq('event', eventId)
+    .order('id', { ascending: true });
+
+  if (error) {
+    console.error('Failed to fetch event registrations:', error.message);
+    return [];
+  }
+
+  return (data ?? []).map((row) => row.name).filter((name): name is string => typeof name === 'string' && name.trim().length > 0);
+}
+
 export async function createEvent(newEvent: StudentEvent): Promise<StudentEvent | null> {
   const { error } = await supabase
     .from('events')
