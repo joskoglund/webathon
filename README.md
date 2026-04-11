@@ -42,7 +42,7 @@ Målet er å gjøre det enklere å oppdage hva som skjer rundt deg på campus, o
 
 Prosjektet er live på:
 
-https://webathon-tau.vercel.app
+https://studentwhere.vercel.app/
 
 ### Kjøre lokalt:
 
