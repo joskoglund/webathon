@@ -3,6 +3,8 @@ import { X } from 'lucide-react'; // Changed Cross to X for a standard look
 import { StudentEvent, ChatMessage } from '@/types/events';
 import { createChatMessage, getEventChat } from '../Event/EventGetter';
 import ChatInput from './ChatInput';
+import { supabase } from "@/lib/supabase";
+
 
 interface ChatWindowProps {
     event: StudentEvent;
@@ -11,12 +13,38 @@ interface ChatWindowProps {
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ event, onClose }) => {
     const [chats, setChats] = useState<ChatMessage[] | []>([]);  
+
     useEffect(() => {
-      (async () => {
+    // 1. Initial Fetch
+    const loadChats = async () => {
         const dbChats = await getEventChat(event.id);
         setChats(dbChats);
-      })();
-    }, [chats]);
+    };
+    loadChats();
+
+    // 2. Real-time Subscription
+    const channel = supabase
+        .channel(`chat:${event.id}`)
+        .on(
+        'postgres_changes',
+        {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'chatMessages',
+            filter: `eventID=eq.${event.id}`,
+        },
+        (payload) => {
+            // Add the new message to the existing list
+            setChats((current) => [...current, payload.new as ChatMessage]);
+        }
+        )
+        .subscribe();
+
+    // 3. Cleanup on unmount or event change
+    return () => {
+        supabase.removeChannel(channel);
+    };
+    }, [event.id]);
 
     const currentUser = localStorage.getItem('userName') || 'Anonymous';
 
@@ -83,7 +111,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ event, onClose }) => {
     <ChatInput onSendMessage={(text) => {
         console.log("Save to Supabase:", text); 
         createChatMessage(event.id, currentUser, text);
-        setChats([])
     }} />    
     </div>
   );
