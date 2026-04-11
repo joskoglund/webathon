@@ -10,6 +10,22 @@ interface EventPopupProps {
   onOpenChat: (event: StudentEvent) => void;
 }
 
+function pad(value: number): string {
+  return String(value).padStart(2, '0');
+}
+
+function formatDateTime(date: Date): string {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function isSameCalendarDay(start: Date, end: Date): boolean {
+  return (
+    start.getFullYear() === end.getFullYear() &&
+    start.getMonth() === end.getMonth() &&
+    start.getDate() === end.getDate()
+  );
+}
+
 const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady, onOpenChat }) => {
   const [event, setEvent] = useState<StudentEvent | null>(null);
   const [loading, setLoading] = useState(true);
@@ -46,6 +62,13 @@ const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady
     }
   };
 
+  let eventDateLabel = '';
+  if (event) {
+    eventDateLabel = isSameCalendarDay(event.startTime, event.endTime)
+      ? `${formatDateTime(event.startTime)} - ${pad(event.endTime.getHours())}:${pad(event.endTime.getMinutes())}`
+      : `${formatDateTime(event.startTime)} - ${formatDateTime(event.endTime)}`;
+  }
+
   if (loading) return <div className="w-64 p-3 text-sm text-slate-500">Loading event...</div>;
   if (!event) return <div className="w-64 p-3 text-sm text-red-500">Event not found.</div>;
 
@@ -77,7 +100,9 @@ const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady
       <div className="mt-3 space-y-2">
         <div className="flex items-center gap-2 text-slate-600 text-sm">
           <Calendar size={14} className="shrink-0" />
-          <span className="truncate">{event.startTime.toLocaleTimeString()} - {event.endTime.toLocaleTimeString()}</span>
+          <span className="truncate" title={eventDateLabel}>
+            {eventDateLabel}
+          </span>
         </div>
         
         <div className="flex items-center gap-2 text-slate-600 text-sm">

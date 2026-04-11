@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import CreateEventBtn from './components/UI/CreateEventBtn';
@@ -9,7 +9,6 @@ import JoinedEventsSidebar from './components/UI/JoinedEventsSidebar';
 import { createEvent } from './components/Event/EventGetter';
 import ChatWindow from './components/Chat/ChatWindow';
 import { StudentEvent } from '@/types/events';
-import { getMapEvents } from './components/Event/EventGetter';
 import NameEntryPopup from './components/UI/EntryPopup';
 
 const DisplayMap = dynamic(() => import('./components/Map/MapContainer'), {
@@ -22,6 +21,9 @@ export default function MapPage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedType, setSelectedType] = useState<'All' | StudentEvent['category']>('All');
+  const [selectedJoinState, setSelectedJoinState] = useState<'All' | 'Joined' | 'Not Joined'>('All');
   const mapRef = useRef<{ refresh: () => Promise<void> } | null>(null);
   const [activeChatEvent, setActiveChatEvent] = useState<StudentEvent | null>(null);
 
@@ -65,6 +67,9 @@ export default function MapPage() {
         ref={mapRef}
         onOpenChat={setActiveChatEvent}
         isSelectingLocation={isSelectingLocation} 
+        searchQuery={searchQuery}
+        selectedType={selectedType}
+        selectedJoinState={selectedJoinState}
         draftLocation={selectedLocation}
         showDraftMarker={isCreatePopupOpen}
         onDraftLocationChange={(latlng) => setSelectedLocation({ lat: latlng.lat, lng: latlng.lng })}
@@ -103,7 +108,14 @@ export default function MapPage() {
       )}
       {/* See joined events / chats */}
       <JoinedEventsSidebar 
-        onOpenChat={setActiveChatEvent}/>
+        onOpenChat={setActiveChatEvent}
+        searchQuery={searchQuery}
+        onSearchQueryChange={setSearchQuery}
+        selectedType={selectedType}
+        onSelectedTypeChange={setSelectedType}
+        selectedJoinState={selectedJoinState}
+        onSelectedJoinStateChange={setSelectedJoinState}
+      />
       
       {activeChatEvent && (
         <ChatWindow 

@@ -1,16 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { MessageSquare, Search, Settings, User, Menu, ChevronLeft } from 'lucide-react';
+import { Search, Menu, ChevronLeft } from 'lucide-react';
 import { StudentEvent } from '@/types/events';
-import { getSidebarEvents } from '../Event/EventGetter';
+import { getSidebarEvents, isEventJoinedLocally } from '../Event/EventGetter';
+
+type JoinStateFilter = 'All' | 'Joined' | 'Not Joined';
 
 interface SidebarProps {
   onOpenChat: (event: StudentEvent) => void;
+  searchQuery: string;
+  onSearchQueryChange: (value: string) => void;
+  selectedType: 'All' | StudentEvent['category'];
+  onSelectedTypeChange: (value: 'All' | StudentEvent['category']) => void;
+  selectedJoinState: JoinStateFilter;
+  onSelectedJoinStateChange: (value: JoinStateFilter) => void;
 
 }
-const JoinedEventsSidebar: React.FC<SidebarProps> = ( {onOpenChat}) => {
-  const [searchQuery, setSearchQuery] = useState('');
+const JoinedEventsSidebar: React.FC<SidebarProps> = ({
+  onOpenChat,
+  searchQuery,
+  onSearchQueryChange,
+  selectedType,
+  onSelectedTypeChange,
+  selectedJoinState,
+  onSelectedJoinStateChange,
+}) => {
   const [activeChat, setActiveChat] = useState<number | null>(null);
-  const [selectedType, setSelectedType] = useState<'All' | StudentEvent['category']>('All');
   const [isOpen, setIsOpen] = useState(true); // Control visibility
   const [events, setEvents] = useState<StudentEvent[]>([]);
 
@@ -25,6 +39,12 @@ const JoinedEventsSidebar: React.FC<SidebarProps> = ( {onOpenChat}) => {
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const filteredEvents = events.filter((event) => {
     const matchesType = selectedType === 'All' || event.category === selectedType;
+    const isJoined = isEventJoinedLocally(event.id);
+    const matchesJoinState =
+      selectedJoinState === 'All' ||
+      (selectedJoinState === 'Joined' && isJoined) ||
+      (selectedJoinState === 'Not Joined' && !isJoined);
+
     const safeTitle = (event.title ?? '').toLowerCase();
     const safeDescription = (event.description ?? '').toLowerCase();
     const safeCategory = (event.category ?? '').toLowerCase();
@@ -34,7 +54,7 @@ const JoinedEventsSidebar: React.FC<SidebarProps> = ( {onOpenChat}) => {
       safeDescription.includes(normalizedQuery) ||
       safeCategory.includes(normalizedQuery);
 
-    return matchesType && matchesSearch;
+    return matchesType && matchesJoinState && matchesSearch;
   });
 
   return (
@@ -76,22 +96,34 @@ const JoinedEventsSidebar: React.FC<SidebarProps> = ( {onOpenChat}) => {
             placeholder="Search events..."
             className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => onSearchQueryChange(e.target.value)}
           />
         </div>
 
         <div className="mt-3">
-          <select
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value as 'All' | StudentEvent['category'])}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="All">All event types</option>
-            <option value="Study">Study</option>
-            <option value="Sports">Sports</option>
-            <option value="Social">Social</option>
-            <option value="Volunteer">Volunteer</option>
-          </select>
+          <div className="grid grid-cols-2 gap-2">
+            <select
+              value={selectedType}
+              onChange={(e) => onSelectedTypeChange(e.target.value as 'All' | StudentEvent['category'])}
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="All">All types</option>
+              <option value="Study">Study</option>
+              <option value="Sports">Sports</option>
+              <option value="Social">Social</option>
+              <option value="Volunteer">Volunteer</option>
+            </select>
+
+            <select
+              value={selectedJoinState}
+              onChange={(e) => onSelectedJoinStateChange(e.target.value as JoinStateFilter)}
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="All">All</option>
+              <option value="Joined">Joined</option>
+              <option value="Not Joined">Not joined</option>
+            </select>
+          </div>
         </div>
       </div>
 

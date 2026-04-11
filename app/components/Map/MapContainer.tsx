@@ -35,6 +35,9 @@ const createCategoryIcon = (category: StudentEvent['category']) =>
 interface MapProps {
   isSelectingLocation: boolean;
   onLocationSelected: (latlng: L.LatLng) => void;
+  searchQuery: string;
+  selectedType: 'All' | StudentEvent['category'];
+  selectedJoinState: 'All' | 'Joined' | 'Not Joined';
   draftLocation?: { lat: number; lng: number } | null;
   showDraftMarker?: boolean;
   onDraftLocationChange?: (latlng: L.LatLng) => void;
@@ -58,6 +61,9 @@ export default forwardRef(function CampusMap(
   {
     isSelectingLocation,
     onLocationSelected,
+    searchQuery,
+    selectedType,
+    selectedJoinState,
     draftLocation = null,
     showDraftMarker = false,
     onDraftLocationChange,
@@ -73,6 +79,27 @@ export default forwardRef(function CampusMap(
     const dbEvents = await getMapEvents();
     setEvents(dbEvents);
   };
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredEvents = events.filter((event) => {
+    const matchesType = selectedType === 'All' || event.category === selectedType;
+    const isJoined = isEventJoinedLocally(event.id);
+    const matchesJoinState =
+      selectedJoinState === 'All' ||
+      (selectedJoinState === 'Joined' && isJoined) ||
+      (selectedJoinState === 'Not Joined' && !isJoined);
+
+    const safeTitle = (event.title ?? '').toLowerCase();
+    const safeDescription = (event.description ?? '').toLowerCase();
+    const safeCategory = (event.category ?? '').toLowerCase();
+    const matchesSearch =
+      normalizedQuery.length === 0 ||
+      safeTitle.includes(normalizedQuery) ||
+      safeDescription.includes(normalizedQuery) ||
+      safeCategory.includes(normalizedQuery);
+
+    return matchesType && matchesJoinState && matchesSearch;
+  });
 
   const handleJoinToggle = async (eventId: number) => {
     if (isEventJoinedLocally(eventId)) {
@@ -118,7 +145,7 @@ export default forwardRef(function CampusMap(
       />
 
       {/* Pre-existing Demo Markers */}
-      {events.map((event) => (
+      {filteredEvents.map((event) => (
         <Marker key={event.id} position={[event.latitude, event.longitude]} icon={createCategoryIcon(event.category)}>
           <Popup ref={(ref) => { popupRefs.current[event.id] = ref; }}>
             <EventPopup

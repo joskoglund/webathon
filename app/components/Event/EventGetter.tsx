@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 export async function getMapEvents(): Promise<StudentEvent[]> {
   const { data, error } = await supabase
     .from('events')
-    .select('id, latitude, longitude, category')
+    .select('id, title, description, latitude, longitude, category')
     .gt('endTime', new Date().toISOString());
 
   if (error) {
