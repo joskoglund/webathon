@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Users, MessageSquare, Calendar, Flame } from 'lucide-react';
 import ChatWindow from '../Chat/ChatWindow';
 import { StudentEvent } from '@/types/events';
@@ -95,7 +95,7 @@ const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady
           Join Event
         </button>
         <button className="flex items-center justify-center w-10 h-8 border border-slate-200 rounded hover:bg-slate-50 text-slate-600 transition-colors"
-          onClick={() => {<ChatWindow event={event} userName={"Demo_user"} open={true}/>}}
+          onClick={() => onOpenChat(event)}
         >
           <MessageSquare size={16} />
         </button>

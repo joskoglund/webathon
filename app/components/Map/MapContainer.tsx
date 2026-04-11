@@ -27,6 +27,7 @@ const customIcon = L.divIcon({
 interface MapProps {
   isSelectingLocation: boolean;
   onLocationSelected: (latlng: L.LatLng) => void;
+  onOpenChat: (event: StudentEvent) => void;
 }
 
 // Sub-component to handle map interactions
@@ -42,7 +43,7 @@ function MapClickHandler({ isSelectingLocation, onLocationSelected, setTempMarke
   return null;
 }
 
-export default function Map({ isSelectingLocation, onLocationSelected }: MapProps) {
+export default function Map({ isSelectingLocation, onLocationSelected, onOpenChat }: MapProps) {
   const [tempMarker, setTempMarker] = useState<L.LatLng | null>(null);
   const [events, setEvents] = useState<StudentEvent[]>([]);
   const popupRefs = useRef<Record<number, L.Popup | null>>({});
@@ -81,6 +82,7 @@ export default function Map({ isSelectingLocation, onLocationSelected }: MapProp
           <Popup ref={(ref) => { popupRefs.current[event.id] = ref; }}>
             <EventPopup
               eventId={event.id}
+              onOpenChat={onOpenChat}
               onJoin={(id) => console.log(`Joining event ${id}`)}
               onContentReady={() => popupRefs.current[event.id]?.update()}
             />

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import CreateEventBtn from './components/UI/CreateEventBtn';
 import JoinedEventsSidebar from './components/UI/JoinedEventsSidebar';
 import ChatWindow from './components/Chat/ChatWindow';
+import { StudentEvent } from '@/types/events';
 
 const DisplayMap = dynamic(() => import('./components/Map/MapContainer'), {
   ssr: false,
@@ -15,7 +16,7 @@ const DisplayMap = dynamic(() => import('./components/Map/MapContainer'), {
 export default function MapPage() {
   const [isSelectingLocation, setIsSelectingLocation] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
+  const [activeChatEvent, setActiveChatEvent] = useState<StudentEvent | null>(null); 
 
   const toggleSelectionMode = () => {
     setIsSelectingLocation((prev) => !prev);
@@ -60,9 +61,15 @@ export default function MapPage() {
         }}
       />
       {/* See joined events / chats */}
-      <JoinedEventsSidebar />
+      <JoinedEventsSidebar onOpenChat={setActiveChatEvent} />
       
-
+      {activeChatEvent && (
+        <ChatWindow 
+          event={activeChatEvent} 
+          userName="Demo_User"
+          onClose={() => setActiveChatEvent(null)} 
+        />
+      )}
       <link
         rel="stylesheet"
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"

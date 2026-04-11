@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { MessageSquare, Search, Settings, User, Plus } from 'lucide-react';
+import { MessageSquare, Search, Settings, User, Plus, Menu, ChevronLeft } from 'lucide-react';
 import eventsData from '@/public/testEvents.json';
 import { StudentEvent, ChatMessage } from '@/types/events';
 
-const JoinedEventsSidebar: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('1');
+interface sidebarProps {
+  onOpenChat: (event: StudentEvent) => void;
+}
+const JoinedEventsSidebar: React.FC<sidebarProps> = ( {onOpenChat}) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isOpen, setIsOpen] = useState(true); // Control visibility
   
   const events: StudentEvent[] = eventsData.map(event => ({
     ...event,
@@ -14,6 +17,22 @@ const JoinedEventsSidebar: React.FC = () => {
     }));
 
   return (
+    <>
+    {/* --- Toggle Button (Visible when sidebar is closed) --- */}
+      {!isOpen && (
+        <button 
+          onClick={() => setIsOpen(true)}
+          className="absolute top-4 left-4 z-[1001] p-3 bg-white border border-slate-200 rounded-lg shadow-md hover:bg-slate-50 text-slate-600 transition-all"
+        >
+          <Menu size={24} />
+        </button>
+      )}
+      {/* --- Sidebar Container --- */}
+      <div className={`
+        flex flex-col h-screen w-80 border-r border-slate-200 bg-white z-[1000] absolute left-0 top-0 
+        transition-transform duration-300 ease-in-out shadow-xl
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
     <div className="flex flex-col h-screen w-80 border-r border-slate-200 bg-white z-[1000] absolute left-0 top-0">
       {/* --- Header --- */}
       <div className="p-4 border-b border-slate-100">
@@ -22,6 +41,13 @@ const JoinedEventsSidebar: React.FC = () => {
           <button className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full transition-colors">
             <Plus size={20} />
           </button>
+          {/* RETRACT BUTTON */}
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+              >
+                <ChevronLeft size={20} />
+              </button>
         </div>
         
         {/* Search Bar */}
@@ -42,10 +68,8 @@ const JoinedEventsSidebar: React.FC = () => {
         {events.map((event) => (
           <button
             key={event.id}
-            onClick={() => setActiveTab(event.id)}
-            className={`w-full flex items-center p-4 gap-3 transition-colors hover:bg-slate-50 ${
-              activeTab === event.id ? 'bg-indigo-50' : ''
-            }`}
+            onClick={() => onOpenChat(event)}
+            className={`w-full flex items-center p-4 gap-3 transition-colors hover:bg-slate-50`}
           >
             {/* Avatar Circle */}
             <div className="relative flex-shrink-0">
@@ -58,12 +82,13 @@ const JoinedEventsSidebar: React.FC = () => {
             <div className="flex-1 min-w-0 text-left">
               <div className="flex justify-between items-baseline">
                 <span className="font-semibold text-slate-900 truncate">{event.title}</span>
-                <span className="text-xs text-slate-500">{event.time} - </span>
+                <span className="text-xs text-slate-500">{event.startTime.toLocaleTimeString()} - {event.endTime.toLocaleTimeString()}</span>
               </div>
               <div className="flex justify-between items-center">
                 <p className="text-sm text-slate-500 truncate mr-2">{event.description}</p>
               </div>
             </div>
+
           </button>
         ))}
       </div>
@@ -81,6 +106,8 @@ const JoinedEventsSidebar: React.FC = () => {
         </button>
       </div>
     </div>
+    </div>
+    </>
   );
 };
 
