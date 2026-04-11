@@ -12,7 +12,8 @@ const supabase = createClient(
 export async function getMapEvents(): Promise<StudentEvent[]> {
   const { data, error } = await supabase
     .from('events')
-    .select('id, latitude, longitude, category');
+    .select('id, latitude, longitude, category')
+    .gt('endTime', new Date().toISOString());
 
   if (error) {
     console.error('Failed to fetch events:', error.message);
@@ -33,7 +34,8 @@ export async function getMapEvents(): Promise<StudentEvent[]> {
 export async function getSidebarEvents(): Promise<StudentEvent[]> {
   const { data, error } = await supabase
     .from('events')
-    .select('id, title, description, category, startTime, endTime, attendeeCount, maxAttendees');
+    .select('id, title, description, category, startTime, endTime, attendeeCount, maxAttendees')
+    .gt('endTime', new Date().toISOString());
 
   if (error) {
     console.error('Failed to fetch events:', error.message);
