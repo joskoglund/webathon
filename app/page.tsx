@@ -25,6 +25,7 @@ export default function MapPage() {
   const mapRef = useRef<{ refresh: () => Promise<void> } | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
 
+
   const toggleSelectionMode = () => {
     setIsSelectingLocation((prev) => !prev);
   };

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react'; // Changed Cross to X for a standard look
 import { StudentEvent, ChatMessage } from '@/types/events';
-import { createChatMessage, getEventChat } from '../Event/EventGetter';
+import { createChatMessage, getEvent, getEventChat } from '../Event/EventGetter';
 import ChatInput from './ChatInput';
 import { supabase } from "@/lib/supabase";
 
@@ -9,17 +9,20 @@ import { supabase } from "@/lib/supabase";
 interface ChatWindowProps {
     eventId: number;
     onClose: () => void;
+    
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ eventId, onClose }) => {
     const [chats, setChats] = useState<ChatMessage[] | []>([]);  
+    const [event, setEvent] = useState<StudentEvent | null>(null);
 
-  
     useEffect(() => {
     // 1. Initial Fetch
     const loadChats = async () => {
         const dbChats = await getEventChat(eventId);
+        const eventData = await getEvent(eventId);
         setChats(dbChats);
+        setEvent(eventData);
     };
     loadChats();
 
@@ -57,7 +60,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ eventId, onClose }) => {
     <div className="flex items-center justify-between">
       <div>
         <h1 className="text-xl font-bold text-slate-800 truncate max-w-[200px] md:max-w-full">
-          {"event"}
+          {event?.title}
         </h1>
         <p className="text-xs text-slate-500">Logged in as {currentUser}</p>
       </div>
