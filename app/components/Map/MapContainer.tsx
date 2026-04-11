@@ -111,7 +111,7 @@ export default forwardRef(function CampusMap(
   const position: [number, number] = [60.389, 5.332] // Bergen / Campus
   const [events, setEvents] = useState<StudentEvent[]>([]);
 
-  const currentEvent = events.find(e => e.id === selectedEventId);
+  const currentEvent = events.find(e => e.id === selectedEventId) ?? null;
 
   const refreshEvents = async () => {
     const dbEvents = await getMapEvents();
