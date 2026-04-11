@@ -91,8 +91,8 @@ export default function MapPage() {
         selectedType={selectedType}
         onSelectedTypeChange={setSelectedType}
         selectedJoinState={selectedJoinState}
-        onSelectedJoinStateChange={setSelectedJoinState}
-      />
+        onSelectedJoinStateChange={setSelectedJoinState} 
+        selectedEventId={selectedEventId}      />
       
       {selectedEventId && (
         <ChatWindow 
