@@ -6,7 +6,7 @@ import L from 'leaflet'
 import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import EventPopup from '../UI/EventPopup'; // Assuming you saved the previous component here
 import { StudentEvent } from '@/types/events';
-import { getMapEvents } from '../Event/EventGetter';
+import { getMapEvents, joinEvent, leaveEvent, isEventJoinedLocally } from '../Event/EventGetter';
 
 // Standard Marker Icon Fix
 const defaultIcon = L.icon({
@@ -74,6 +74,22 @@ export default forwardRef(function CampusMap(
     setEvents(dbEvents);
   };
 
+  const handleJoinToggle = async (eventId: number) => {
+    if (isEventJoinedLocally(eventId)) {
+      const left = await leaveEvent(eventId);
+      if (left) {
+        await refreshEvents();
+      }
+      return left;
+    }
+
+    const joined = await joinEvent(eventId);
+    if (joined) {
+      await refreshEvents();
+    }
+    return joined;
+  };
+
   useImperativeHandle(ref, () => ({
     refresh: refreshEvents,
   }), []);
@@ -108,7 +124,7 @@ export default forwardRef(function CampusMap(
             <EventPopup
               eventId={event.id}
               onOpenChat={onOpenChat}
-              onJoin={(id) => console.log(`Joining event ${id}`)}
+              onJoin={handleJoinToggle}
               onContentReady={() => popupRefs.current[event.id]?.update()}
             />
           </Popup>

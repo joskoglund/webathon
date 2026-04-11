@@ -126,3 +126,154 @@ export async function createChatMessage(eventID : number, userName : string, mes
 
   return message;
 }
+
+const JOINED_EVENTS_KEY = 'joinedEvents';
+
+type JoinedEventRecord = {
+  eventId: number;
+  registrationId: number;
+  name: string;
+};
+
+function getStoredJoinedEvents(): JoinedEventRecord[] {
+  if (globalThis.window === undefined) return [];
+
+  try {
+    const stored = globalThis.window.localStorage.getItem(JOINED_EVENTS_KEY);
+    const parsed = stored ? (JSON.parse(stored) as unknown) : [];
+    return Array.isArray(parsed)
+      ? parsed.filter(
+          (value): value is JoinedEventRecord =>
+            typeof value === 'object' &&
+            value !== null &&
+            'eventId' in value &&
+            'registrationId' in value &&
+            'name' in value &&
+            typeof value.eventId === 'number' &&
+            typeof value.registrationId === 'number' &&
+            typeof value.name === 'string'
+        )
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function setStoredJoinedEvents(joinedEvents: JoinedEventRecord[]) {
+  if (globalThis.window === undefined) return;
+  globalThis.window.localStorage.setItem(JOINED_EVENTS_KEY, JSON.stringify(joinedEvents));
+}
+
+function getCurrentUserName(): string {
+  if (globalThis.window === undefined) return 'Anonymous';
+
+  return globalThis.window.localStorage.getItem('userName') || 'Anonymous';
+}
+
+export function isEventJoinedLocally(eventId: number): boolean {
+  return getStoredJoinedEvents().some((joinedEvent) => joinedEvent.eventId === eventId);
+}
+
+export function getJoinedEventRegistrationId(eventId: number): number | null {
+  const joinedEvent = getStoredJoinedEvents().find((record) => record.eventId === eventId);
+  return joinedEvent?.registrationId ?? null;
+}
+
+export function storeJoinedEventLocally(eventId: number, registrationId: number, name: string) {
+  const current = getStoredJoinedEvents();
+  if (!current.some((record) => record.eventId === eventId)) {
+    setStoredJoinedEvents([...current, { eventId, registrationId, name }]);
+  }
+}
+
+export function removeJoinedEventLocally(eventId: number) {
+  const current = getStoredJoinedEvents();
+  setStoredJoinedEvents(current.filter((record) => record.eventId !== eventId));
+}
+
+async function updateAttendeeCount(eventId: number, delta: number) {
+  const { data, error: fetchError } = await supabase
+    .from('events')
+    .select('attendeeCount')
+    .eq('id', eventId)
+    .single();
+
+  if (fetchError) {
+    console.error('Failed to load attendee count:', fetchError.message);
+    return false;
+  }
+
+  const nextCount = Math.max(0, (data?.attendeeCount ?? 0) + delta);
+
+  const { error: updateError } = await supabase
+    .from('events')
+    .update({ attendeeCount: nextCount })
+    .eq('id', eventId);
+
+  if (updateError) {
+    console.error('Failed to update attendee count:', updateError.message);
+    return false;
+  }
+
+  return true;
+}
+
+export async function joinEvent(eventId: number): Promise<boolean> {
+  const name = getCurrentUserName();
+
+  const { data: registration, error: registrationError } = await supabase
+    .from('eventRegistration')
+    .insert({
+      event: eventId,
+      name,
+    })
+    .select('id')
+    .single();
+
+  if (registrationError) {
+    console.error('Failed to join event:', registrationError.message);
+    return false;
+  }
+
+  const countUpdated = await updateAttendeeCount(eventId, 1);
+  if (!countUpdated) {
+    return false;
+  }
+
+  const registrationId = registration?.id;
+
+  if (typeof registrationId !== 'number') {
+    console.error('Failed to store join locally: registration id missing from insert response.');
+    return false;
+  }
+
+  storeJoinedEventLocally(eventId, registrationId, name);
+  return true;
+}
+
+export async function leaveEvent(eventId: number): Promise<boolean> {
+  const registrationId = getJoinedEventRegistrationId(eventId);
+
+  if (registrationId === null) {
+    console.error('Failed to leave event: no stored registration id found.');
+    return false;
+  }
+
+  const { error: deleteError } = await supabase
+    .from('eventRegistration')
+    .delete()
+    .eq('id', registrationId);
+
+  if (deleteError) {
+    console.error('Failed to leave event:', deleteError.message);
+    return false;
+  }
+
+  const countUpdated = await updateAttendeeCount(eventId, -1);
+  if (!countUpdated) {
+    return false;
+  }
+
+  removeJoinedEventLocally(eventId);
+  return true;
+}

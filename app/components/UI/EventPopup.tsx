@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Users, MessageSquare, Calendar, Flame } from 'lucide-react';
+import { Users, MessageSquare, Calendar } from 'lucide-react';
 import { StudentEvent } from '@/types/events';
-import { getEvent } from '../Event/EventGetter';
+import { getEvent, isEventJoinedLocally } from '../Event/EventGetter';
 
 interface EventPopupProps {
   eventId: number;
-  onJoin?: (id: number) => void;
+  onJoin?: (id: number) => Promise<boolean> | boolean;
   onContentReady?: () => void;
   onOpenChat: (event: StudentEvent) => void;
 }
@@ -13,6 +13,7 @@ interface EventPopupProps {
 const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady, onOpenChat }) => {
   const [event, setEvent] = useState<StudentEvent | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isJoined, setIsJoined] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -22,6 +23,7 @@ const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady
       const fetchedEvent = await getEvent(eventId);
       if (active) {
         setEvent(fetchedEvent ?? null);
+        setIsJoined(isEventJoinedLocally(eventId));
         setLoading(false);
       }
     })();
@@ -37,6 +39,13 @@ const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady
     }
   }, [loading, event, onContentReady]);
 
+  const refreshEvent = async () => {
+    const updatedEvent = await getEvent(eventId);
+    if (updatedEvent) {
+      setEvent(updatedEvent);
+    }
+  };
+
   if (loading) return <div className="w-64 p-3 text-sm text-slate-500">Loading event...</div>;
   if (!event) return <div className="w-64 p-3 text-sm text-red-500">Event not found.</div>;
 
@@ -49,7 +58,6 @@ const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady
   Social: 'bg-amber-100 text-amber-700 border-amber-200',
   };
 
-  if (event != null)
   return (
     /* Note: Leaflet popups have their own padding, so w-64 is a safe width */
     <div className="w-64 p-0 font-sans antialiased">
@@ -88,10 +96,18 @@ const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady
       {/* Actions */}
       <div className="mt-4 flex gap-2">
         <button 
-          onClick={() => onJoin?.(event.id)}
-          className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-3 rounded shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1"
+          onClick={async () => {
+            const success = await onJoin?.(event.id);
+
+            if (success === true) {
+              const nextJoinedState = !isJoined;
+              setIsJoined(nextJoinedState);
+              await refreshEvent();
+            }
+          }}
+          className={`flex-1 text-white text-xs font-bold py-2 px-3 rounded shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1 ${isJoined ? 'bg-rose-600 hover:bg-rose-700' : 'bg-indigo-600 hover:bg-indigo-700'}`}
         >
-          Join Event
+          {isJoined ? 'Leave Event' : 'Join Event'}
         </button>
         <button className="flex items-center justify-center w-10 h-8 border border-slate-200 rounded hover:bg-slate-50 text-slate-600 transition-colors"
           onClick={() => onOpenChat(event)}
@@ -112,7 +128,6 @@ const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady
       </div>
     </div>
   );
-  else return
 };
 
 export default EventPopup;
