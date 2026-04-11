@@ -42,9 +42,6 @@ const JoinedEventsSidebar: React.FC<sidebarProps> = ( {onOpenChat}) => {
       <div className="p-4 border-b border-slate-100">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-xl font-bold text-slate-800">Events</h1>
-          <button className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full transition-colors">
-            <Plus size={20} />
-          </button>
           {/* RETRACT BUTTON */}
               <button 
                 onClick={() => setIsOpen(false)}
