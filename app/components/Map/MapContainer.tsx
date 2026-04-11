@@ -6,7 +6,8 @@ import L from 'leaflet'
 import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import EventPopup from '../UI/EventPopup'; // Assuming you saved the previous component here
 import { StudentEvent } from '@/types/events';
-import { getMapEvents } from '../Event/EventGetter';
+import { getMapEvents, joinEvent, leaveEvent, isEventJoinedLocally } from '../Event/EventGetter';
+import { useMap } from 'react-leaflet';
 
 // Standard Marker Icon Fix
 const defaultIcon = L.icon({
