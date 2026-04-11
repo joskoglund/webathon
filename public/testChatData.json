@@ -1,0 +1,42 @@
+[
+  {
+    "id": "msg-001",
+    "eventId": "ev-005",
+    "userName": "Alex Rivera",
+    "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+    "time": "2026-04-11T10:00:00Z",
+    "message": "Welcome everyone to the 2026 Tech Summit! Looking forward to the keynote."
+  },
+  {
+    "id": "msg-002",
+    "eventId": "ev-005",
+    "userName": "Jordan Smith",
+    "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Jordan",
+    "time": "2026-04-11T10:02:15Z",
+    "message": "Does anyone know if the slides will be shared after the presentation?"
+  },
+  {
+    "id": "msg-003",
+    "eventId": "ev-002",
+    "userName": "Sarah Jenkins",
+    "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+    "time": "2026-04-11T11:30:00Z",
+    "message": "Let's start the workshop by defining our primary user personas."
+  },
+  {
+    "id": "msg-004",
+    "eventId": "ev-002",
+    "userName": "Michael Chen",
+    "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael",
+    "time": "2026-04-11T11:35:45Z",
+    "message": "I've uploaded the mood board to the shared folder for reference."
+  },
+  {
+    "id": "msg-005",
+    "eventId": "ev-005",
+    "userName": "Alex Rivera",
+    "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+    "time": "2026-04-11T10:05:00Z",
+    "message": "Yes Jordan, all sessions are being recorded and slides will be in the portal."
+  }
+]

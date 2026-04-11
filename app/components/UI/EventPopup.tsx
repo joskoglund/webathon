@@ -1,5 +1,6 @@
 import React from 'react';
 import { Users, MessageSquare, Calendar, Flame } from 'lucide-react';
+import ChatWindow from '../Chat/ChatWindow';
 import { StudentEvent } from '@/types/events';
 
 interface EventPopupProps {
@@ -35,7 +36,7 @@ const EventPopup: React.FC<EventPopupProps> = ({ event, onJoin }) => {
       <div className="mt-3 space-y-2">
         <div className="flex items-center gap-2 text-slate-600 text-sm">
           <Calendar size={14} className="shrink-0" />
-          <span className="truncate">{event.startTime.toLocaleString()}</span>
+          <span className="truncate">{event.startTime.toLocaleTimeString()} - {event.endTime.toLocaleTimeString()}</span>
         </div>
         
         <div className="flex items-center gap-2 text-slate-600 text-sm">
@@ -59,7 +60,9 @@ const EventPopup: React.FC<EventPopupProps> = ({ event, onJoin }) => {
         >
           Join Event
         </button>
-        <button className="flex items-center justify-center w-10 h-8 border border-slate-200 rounded hover:bg-slate-50 text-slate-600 transition-colors">
+        <button className="flex items-center justify-center w-10 h-8 border border-slate-200 rounded hover:bg-slate-50 text-slate-600 transition-colors"
+          onClick={() => {<ChatWindow event={event} userName={"Demo_user"} open={true}/>}}
+        >
           <MessageSquare size={16} />
         </button>
       </div>

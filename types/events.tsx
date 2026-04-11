@@ -11,3 +11,12 @@ export interface StudentEvent {
   maxAttendees: number;
   checkInRadius?: number; // usually 50 (meters)
 }
+
+export interface ChatMessage {
+  id: string;
+  eventId: string;
+  userName: string;
+  avatarUrl?: string;
+  time: string;
+  message: string;
+}

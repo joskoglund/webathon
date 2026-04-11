@@ -4,6 +4,8 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import CreateEventBtn from './components/UI/CreateEventBtn';
+import JoinedEventsSidebar from './components/UI/JoinedEventsSidebar';
+import ChatWindow from './components/Chat/ChatWindow';
 
 const DisplayMap = dynamic(() => import('./components/Map/MapContainer'), {
   ssr: false,
@@ -57,6 +59,9 @@ export default function MapPage() {
           // Logic to open your form or popup goes here
         }}
       />
+      {/* See joined events / chats */}
+      <JoinedEventsSidebar />
+      
 
       <link
         rel="stylesheet"

@@ -5,8 +5,8 @@ import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import { useEffect, useState } from 'react';
 import EventPopup from '../UI/EventPopup'; // Assuming you saved the previous component here
-import { StudentEvent } from '@/types/events';
-import { createClient } from '@supabase/supabase-js'
+import { StudentEvent, ChatMessage } from '@/types/events';
+import { createClient } from '@supabase/supabase-js';
 
 // Create a single supabase client for interacting with your database
 const supabase = createClient(
