@@ -33,7 +33,7 @@ export async function getMapEvents(): Promise<StudentEvent[]> {
 export async function getSidebarEvents(): Promise<StudentEvent[]> {
   const { data, error } = await supabase
     .from('events')
-    .select('id, title, category, startTime, endTime, attendeeCount, maxAttendees');
+    .select('id, title, description, category, startTime, endTime, attendeeCount, maxAttendees');
 
   if (error) {
     console.error('Failed to fetch events:', error.message);

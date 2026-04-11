@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { MessageSquare, Search, Settings, User, Plus, Menu, ChevronLeft } from 'lucide-react';
-import { StudentEvent, ChatMessage } from '@/types/events';
+import { MessageSquare, Search, Settings, User, Menu, ChevronLeft } from 'lucide-react';
+import { StudentEvent } from '@/types/events';
 import { getSidebarEvents } from '../Event/EventGetter';
 
-interface sidebarProps {
+interface SidebarProps {
   onOpenChat: (event: StudentEvent) => void;
 
 }
-const JoinedEventsSidebar: React.FC<sidebarProps> = ( {onOpenChat}) => {
+const JoinedEventsSidebar: React.FC<SidebarProps> = ( {onOpenChat}) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedType, setSelectedType] = useState<'All' | StudentEvent['category']>('All');
   const [isOpen, setIsOpen] = useState(true); // Control visibility
   const [events, setEvents] = useState<StudentEvent[]>([]);
 
@@ -20,24 +21,39 @@ const JoinedEventsSidebar: React.FC<sidebarProps> = ( {onOpenChat}) => {
       })();
     }, []);
 
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredEvents = events.filter((event) => {
+    const matchesType = selectedType === 'All' || event.category === selectedType;
+    const safeTitle = (event.title ?? '').toLowerCase();
+    const safeDescription = (event.description ?? '').toLowerCase();
+    const safeCategory = (event.category ?? '').toLowerCase();
+    const matchesSearch =
+      normalizedQuery.length === 0 ||
+      safeTitle.includes(normalizedQuery) ||
+      safeDescription.includes(normalizedQuery) ||
+      safeCategory.includes(normalizedQuery);
+
+    return matchesType && matchesSearch;
+  });
+
   return (
     <>
     {/* --- Toggle Button (Visible when sidebar is closed) --- */}
       {!isOpen && (
         <button 
           onClick={() => setIsOpen(true)}
-          className="absolute top-4 left-4 z-[1001] p-3 bg-white border border-slate-200 rounded-lg shadow-md hover:bg-slate-50 text-slate-600 transition-all"
+          className="absolute top-4 left-4 z-1001 p-3 bg-white border border-slate-200 rounded-lg shadow-md hover:bg-slate-50 text-slate-600 transition-all"
         >
           <Menu size={24} />
         </button>
       )}
       {/* --- Sidebar Container --- */}
       <div className={`
-        flex flex-col h-screen w-80 border-r border-slate-200 bg-white z-[1000] absolute left-0 top-0 
+        flex flex-col h-screen w-80 border-r border-slate-200 bg-white z-1000 absolute left-0 top-0 
         transition-transform duration-300 ease-in-out shadow-xl
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-    <div className="flex flex-col h-screen w-80 border-r border-slate-200 bg-white z-[1000] absolute left-0 top-0">
+    <div className="flex flex-col h-screen w-80 border-r border-slate-200 bg-white z-1000 absolute left-0 top-0">
       {/* --- Header --- */}
       <div className="p-4 border-b border-slate-100">
         <div className="flex items-center justify-between mb-4">
@@ -53,28 +69,42 @@ const JoinedEventsSidebar: React.FC<sidebarProps> = ( {onOpenChat}) => {
         
         {/* Search Bar */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-800" size={18} />
           <input
             type="text"
-            placeholder="Search chats..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
+            placeholder="Search events..."
+            className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 text-sm outline-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+        </div>
+
+        <div className="mt-3">
+          <select
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value as 'All' | StudentEvent['category'])}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="All">All event types</option>
+            <option value="Study">Study</option>
+            <option value="Sports">Sports</option>
+            <option value="Social">Social</option>
+            <option value="Volunteer">Volunteer</option>
+          </select>
         </div>
       </div>
 
       {/* --- Event List --- */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
-        {events && events.length > 0 ? (
-          events.map((event) => (
+        {filteredEvents.length > 0 ? (
+          filteredEvents.map((event) => (
             <button
               key={event.id}
               onClick={() => onOpenChat(event)}
               className="w-full flex items-center p-4 gap-3 transition-colors hover:bg-slate-50 border-b border-slate-50 last:border-0"
             >
               {/* Avatar Circle */}
-              <div className="relative flex-shrink-0">
+              <div className="relative shrink-0">
                 <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-semibold border border-slate-200">
                   {event.title.charAt(0)}
                 </div>

@@ -20,6 +20,8 @@ Sosialt student kart, fungerer litt som snapman der studenter kan sette ned pins
 \<guide på hvordan man kjører/bygger prosjektet>
 
 ```bash
+pnpm i
+
 pnpm dev
 ```
 
