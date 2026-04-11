@@ -3,11 +3,32 @@
 import { MapContainer as LeafletMapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import EventPopup from '../UI/EventPopup'; // Assuming you saved the previous component here
-import eventsData from '@/public/testEvents.json';
 import { StudentEvent } from '@/types/events';
+import { createClient } from '@supabase/supabase-js'
 
+// Create a single supabase client for interacting with your database
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+async function getEvents(): Promise<StudentEvent[]> {
+  const { data, error } = await supabase
+    .from('events')
+    .select('id, title, description, latitude, longitude, category, startTime, endTime, attendeeCount, maxAttendees');
+
+  if (error) {
+    console.error('Failed to fetch events:', error.message);
+    return [];
+  }
+
+  const events = (data ?? []) as StudentEvent[];
+
+  console.log(`events recived ${events.at(0)?.title}`);
+
+  return events;
+}
 
 // Standard Marker Icon Fix
 const defaultIcon = L.icon({
@@ -24,8 +45,6 @@ const customIcon = L.divIcon({
   iconSize: [20, 20],
   iconAnchor: [10, 10]
 });
-
-
 
 interface MapProps {
   isSelectingLocation: boolean;
@@ -47,8 +66,15 @@ function MapClickHandler({ isSelectingLocation, onLocationSelected, setTempMarke
 
 export default function Map({ isSelectingLocation, onLocationSelected }: MapProps) {
   const [tempMarker, setTempMarker] = useState<L.LatLng | null>(null);
+  const [events, setEvents] = useState<StudentEvent[]>([]);
   const position: [number, number] = [60.389, 5.332] // Bergen / Campus
-  const events = eventsData as StudentEvent[];
+
+  useEffect(() => {
+    (async () => {
+      const dbEvents = await getEvents();
+      setEvents(dbEvents);
+    })();
+  }, []);
 
   return (
     <LeafletMapContainer 
@@ -72,8 +98,11 @@ export default function Map({ isSelectingLocation, onLocationSelected }: MapProp
 
       {/* Pre-existing Demo Markers */}
       {events.map((event) => (
-        <Marker key={event.id} position={event.coordinates} icon={customIcon}>
+        <Marker key={event.id} position={[event.latitude, event.longitude]} icon={customIcon}>
           <Popup>
+            <strong>{event.title}</strong>
+            <br />
+            {event.description}
             <EventPopup 
               event={event} 
               onJoin={(id) => console.log(`Joining event ${id}`)} 

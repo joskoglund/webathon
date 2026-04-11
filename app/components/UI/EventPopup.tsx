@@ -1,21 +1,10 @@
 import React from 'react';
 import { Users, MessageSquare, Calendar, Flame } from 'lucide-react';
-
-// Define the interface for your event data
-export interface StudentEvent {
-  id: string;
-  title: string;
-  category: 'Sports' | 'Study' | 'Social' | 'Volunteer';
-  attendees: number;
-  maxAttendees: number;
-  time: string;
-  heatLevel: 'Low' | 'Medium' | 'High';
-  description: string;
-}
+import { StudentEvent } from '@/types/events';
 
 interface EventPopupProps {
   event: StudentEvent;
-  onJoin?: (id: string) => void;
+  onJoin?: (id: number) => void;
 }
 
 const EventPopup: React.FC<EventPopupProps> = ({ event, onJoin }) => {
@@ -35,12 +24,6 @@ const EventPopup: React.FC<EventPopupProps> = ({ event, onJoin }) => {
         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${categoryStyles[event.category]}`}>
           {event.category}
         </span>
-        
-        {/* Only show heat level if it's High or Medium to save space */}
-        <div className={`flex items-center gap-1 ${event.heatLevel === 'High' ? 'text-orange-500' : 'text-slate-400'}`}>
-          <Flame size={14} fill={event.heatLevel === 'High' ? "currentColor" : "none"} />
-          <span className="text-xs font-bold">{event.heatLevel} Heat</span>
-        </div>
       </div>
 
       {/* Title */}
@@ -52,13 +35,13 @@ const EventPopup: React.FC<EventPopupProps> = ({ event, onJoin }) => {
       <div className="mt-3 space-y-2">
         <div className="flex items-center gap-2 text-slate-600 text-sm">
           <Calendar size={14} className="shrink-0" />
-          <span className="truncate">{event.time}</span>
+          <span className="truncate">{event.startTime.toLocaleString()}</span>
         </div>
         
         <div className="flex items-center gap-2 text-slate-600 text-sm">
           <Users size={14} className="shrink-0" />
           <span>
-            {event.attendees} / {event.maxAttendees} 
+            {event.attendeeCount} / {event.maxAttendees} 
             <span className="ml-1 text-slate-400 text-[11px]">joined</span>
           </span>
         </div>

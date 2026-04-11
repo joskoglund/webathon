@@ -25,7 +25,7 @@ export default function MapPage() {
         onClick={toggleSelectionMode} 
         isSelectingLocation={isSelectingLocation} 
       />
-           {/* Settings button */}
+      {/* Settings button */}
       <button
         type="button"
         aria-label="Open settings menu"
