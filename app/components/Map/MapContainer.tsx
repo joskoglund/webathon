@@ -3,7 +3,7 @@
 import { MapContainer as LeafletMapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
-import { useEffect, useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import EventPopup from '../UI/EventPopup'; // Assuming you saved the previous component here
 import { StudentEvent, ChatMessage } from '@/types/events';
 import { getMapEvents } from '../Event/EventGetter';
@@ -28,6 +28,7 @@ interface MapProps {
   isSelectingLocation: boolean;
   onLocationSelected: (latlng: L.LatLng) => void;
   onOpenChat: (event: StudentEvent) => void;
+  events: StudentEvent[];
 }
 
 // Sub-component to handle map interactions
@@ -45,9 +46,10 @@ function MapClickHandler({ isSelectingLocation, onLocationSelected, setTempMarke
 
 export default function Map({ isSelectingLocation, onLocationSelected, onOpenChat }: MapProps) {
   const [tempMarker, setTempMarker] = useState<L.LatLng | null>(null);
-  const [events, setEvents] = useState<StudentEvent[]>([]);
   const popupRefs = useRef<Record<number, L.Popup | null>>({});
   const position: [number, number] = [60.389, 5.332] // Bergen / Campus
+  const [events, setEvents] = useState<StudentEvent[]>([]);
+
 
   useEffect(() => {
     (async () => {

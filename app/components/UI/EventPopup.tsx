@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, MessageSquare, Calendar, Flame } from 'lucide-react';
-import ChatWindow from '../Chat/ChatWindow';
 import { StudentEvent } from '@/types/events';
 import { getEvent } from '../Event/EventGetter';
-import { useEffect, useState } from 'react';
 
 interface EventPopupProps {
   eventId: number;
   onJoin?: (id: number) => void;
   onContentReady?: () => void;
+  onOpenChat: (event: StudentEvent) => void;
 }
 
-const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady }) => {
+const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady, onOpenChat }) => {
   const [event, setEvent] = useState<StudentEvent | null>(null);
   const [loading, setLoading] = useState(true);
 

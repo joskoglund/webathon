@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import CreateEventBtn from './components/UI/CreateEventBtn';
 import JoinedEventsSidebar from './components/UI/JoinedEventsSidebar';
 import ChatWindow from './components/Chat/ChatWindow';
 import { StudentEvent } from '@/types/events';
+import { getMapEvents } from './components/Event/EventGetter';
 
 const DisplayMap = dynamic(() => import('./components/Map/MapContainer'), {
   ssr: false,
@@ -16,7 +17,10 @@ const DisplayMap = dynamic(() => import('./components/Map/MapContainer'), {
 export default function MapPage() {
   const [isSelectingLocation, setIsSelectingLocation] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [activeChatEvent, setActiveChatEvent] = useState<StudentEvent | null>(null); 
+  const [activeChatEvent, setActiveChatEvent] = useState<StudentEvent | null>(null);
+ 
+
+
 
   const toggleSelectionMode = () => {
     setIsSelectingLocation((prev) => !prev);
@@ -61,7 +65,8 @@ export default function MapPage() {
         }}
       />
       {/* See joined events / chats */}
-      <JoinedEventsSidebar onOpenChat={setActiveChatEvent} />
+      <JoinedEventsSidebar 
+        onOpenChat={setActiveChatEvent}/>
       
       {activeChatEvent && (
         <ChatWindow 

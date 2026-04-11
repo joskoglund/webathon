@@ -1,6 +1,5 @@
 import React from 'react';
 import { X } from 'lucide-react'; // Changed Cross to X for a standard look
-import chatData from '@/public/testChatData.json';
 import { StudentEvent, ChatMessage } from '@/types/events';
 
 interface ChatWindowProps {
