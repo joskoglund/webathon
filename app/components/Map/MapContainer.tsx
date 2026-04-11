@@ -3,36 +3,10 @@
 import { MapContainer as LeafletMapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import EventPopup from '../UI/EventPopup'; // Assuming you saved the previous component here
 import { StudentEvent, ChatMessage } from '@/types/events';
-import { createClient } from '@supabase/supabase-js';
-
-// Create a single supabase client for interacting with your database
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-async function getEvents(): Promise<StudentEvent[]> {
-  const { data, error } = await supabase
-    .from('events')
-    .select('id, title, description, latitude, longitude, category, startTime, endTime, attendeeCount, maxAttendees');
-
-  if (error) {
-    console.error('Failed to fetch events:', error.message);
-    return [];
-  }
-
-  const events = (data ?? []) as StudentEvent[];
-
-  console.log(`events recived ${events.at(0)?.title}`);
-
-  return events.map((event) => ({
-    ...event,
-    startTime: event.startTime ? new Date(event.startTime) : new Date(0),
-    endTime: event.endTime ? new Date(event.endTime) : new Date(0),
-  }));
-}
+import { getMapEvents } from '../Event/EventGetter';
 
 // Standard Marker Icon Fix
 const defaultIcon = L.icon({
@@ -71,11 +45,12 @@ function MapClickHandler({ isSelectingLocation, onLocationSelected, setTempMarke
 export default function Map({ isSelectingLocation, onLocationSelected }: MapProps) {
   const [tempMarker, setTempMarker] = useState<L.LatLng | null>(null);
   const [events, setEvents] = useState<StudentEvent[]>([]);
+  const popupRefs = useRef<Record<number, L.Popup | null>>({});
   const position: [number, number] = [60.389, 5.332] // Bergen / Campus
 
   useEffect(() => {
     (async () => {
-      const dbEvents = await getEvents();
+      const dbEvents = await getMapEvents();
       setEvents(dbEvents);
     })();
   }, []);
@@ -103,13 +78,11 @@ export default function Map({ isSelectingLocation, onLocationSelected }: MapProp
       {/* Pre-existing Demo Markers */}
       {events.map((event) => (
         <Marker key={event.id} position={[event.latitude, event.longitude]} icon={customIcon}>
-          <Popup>
-            <strong>{event.title}</strong>
-            <br />
-            {event.description}
-            <EventPopup 
-              event={event} 
-              onJoin={(id) => console.log(`Joining event ${id}`)} 
+          <Popup ref={(ref) => { popupRefs.current[event.id] = ref; }}>
+            <EventPopup
+              eventId={event.id}
+              onJoin={(id) => console.log(`Joining event ${id}`)}
+              onContentReady={() => popupRefs.current[event.id]?.update()}
             />
           </Popup>
         </Marker>

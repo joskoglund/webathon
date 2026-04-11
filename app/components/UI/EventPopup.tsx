@@ -2,13 +2,46 @@ import React from 'react';
 import { Users, MessageSquare, Calendar, Flame } from 'lucide-react';
 import ChatWindow from '../Chat/ChatWindow';
 import { StudentEvent } from '@/types/events';
+import { getEvent } from '../Event/EventGetter';
+import { useEffect, useState } from 'react';
 
 interface EventPopupProps {
-  event: StudentEvent;
+  eventId: number;
   onJoin?: (id: number) => void;
+  onContentReady?: () => void;
 }
 
-const EventPopup: React.FC<EventPopupProps> = ({ event, onJoin }) => {
+const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady }) => {
+  const [event, setEvent] = useState<StudentEvent | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    (async () => {
+      setLoading(true);
+      const fetchedEvent = await getEvent(eventId);
+      if (active) {
+        setEvent(fetchedEvent ?? null);
+        setLoading(false);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [eventId]);
+
+  useEffect(() => {
+    if (!loading && event) {
+      requestAnimationFrame(() => onContentReady?.());
+    }
+  }, [loading, event, onContentReady]);
+
+  if (loading) return <div className="w-64 p-3 text-sm text-slate-500">Loading event...</div>;
+  if (!event) return <div className="w-64 p-3 text-sm text-red-500">Event not found.</div>;
+
+
   // Logic to determine colors based on category
   const categoryStyles = {
     Sports: "bg-emerald-100 text-emerald-700",
@@ -17,10 +50,11 @@ const EventPopup: React.FC<EventPopupProps> = ({ event, onJoin }) => {
     Volunteer: "bg-amber-100 text-amber-700",
   };
 
+  if (event != null)
   return (
     /* Note: Leaflet popups have their own padding, so w-64 is a safe width */
     <div className="w-64 p-0 font-sans antialiased">
-      {/* Category Tag & Heat Indicator */}
+      {/* Category Tag */}
       <div className="flex justify-between items-center mb-2">
         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${categoryStyles[event.category]}`}>
           {event.category}
@@ -79,6 +113,7 @@ const EventPopup: React.FC<EventPopupProps> = ({ event, onJoin }) => {
       </div>
     </div>
   );
+  else return
 };
 
 export default EventPopup;
