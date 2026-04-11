@@ -27,7 +27,7 @@ export default function MapPage() {
   const toggleSelectionMode = () => {
     setIsSelectingLocation((prev) => !prev);
   };
-
+ 
   return (
     <div className="relative h-screen w-full">
       <CreateEventBtn 
@@ -60,6 +60,7 @@ export default function MapPage() {
       {/* Pass the state to the map */}
       <DisplayMap 
         ref={mapRef}
+        onOpenChat={setActiveChatEvent}
         isSelectingLocation={isSelectingLocation} 
         draftLocation={selectedLocation}
         showDraftMarker={isCreatePopupOpen}

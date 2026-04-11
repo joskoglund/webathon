@@ -32,7 +32,6 @@ interface MapProps {
   onDraftLocationChange?: (latlng: L.LatLng) => void;
   onRefreshEvents?: () => void;
   onOpenChat: (event: StudentEvent) => void;
-  events: StudentEvent[];
 }
 
 // Sub-component to handle map interactions
