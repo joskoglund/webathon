@@ -1,19 +1,42 @@
-import React, { useState } from 'react';
-import { MessageSquare, Search, Settings, User, Plus } from 'lucide-react';
-import eventsData from '@/public/testEvents.json';
+import React, { useEffect, useState } from 'react';
+import { MessageSquare, Search, Settings, User, Plus, Menu, ChevronLeft } from 'lucide-react';
 import { StudentEvent, ChatMessage } from '@/types/events';
+import { getSidebarEvents } from '../Event/EventGetter';
 
-const JoinedEventsSidebar: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('1');
+interface sidebarProps {
+  onOpenChat: (event: StudentEvent) => void;
+
+}
+const JoinedEventsSidebar: React.FC<sidebarProps> = ( {onOpenChat}) => {
   const [searchQuery, setSearchQuery] = useState('');
-  
-  const events: StudentEvent[] = eventsData.map(event => ({
-    ...event,
-    startTime: new Date(event.startTime),
-    endTime: new Date(event.endTime)
-    }));
+  const [isOpen, setIsOpen] = useState(true); // Control visibility
+  const [events, setEvents] = useState<StudentEvent[]>([]);
+
+
+    useEffect(() => {
+      (async () => {
+        const dbEvents = await getSidebarEvents();
+        setEvents(dbEvents);
+      })();
+    }, []);
 
   return (
+    <>
+    {/* --- Toggle Button (Visible when sidebar is closed) --- */}
+      {!isOpen && (
+        <button 
+          onClick={() => setIsOpen(true)}
+          className="absolute top-4 left-4 z-[1001] p-3 bg-white border border-slate-200 rounded-lg shadow-md hover:bg-slate-50 text-slate-600 transition-all"
+        >
+          <Menu size={24} />
+        </button>
+      )}
+      {/* --- Sidebar Container --- */}
+      <div className={`
+        flex flex-col h-screen w-80 border-r border-slate-200 bg-white z-[1000] absolute left-0 top-0 
+        transition-transform duration-300 ease-in-out shadow-xl
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
     <div className="flex flex-col h-screen w-80 border-r border-slate-200 bg-white z-[1000] absolute left-0 top-0">
       {/* --- Header --- */}
       <div className="p-4 border-b border-slate-100">
@@ -22,6 +45,13 @@ const JoinedEventsSidebar: React.FC = () => {
           <button className="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full transition-colors">
             <Plus size={20} />
           </button>
+          {/* RETRACT BUTTON */}
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+              >
+                <ChevronLeft size={20} />
+              </button>
         </div>
         
         {/* Search Bar */}
@@ -39,35 +69,45 @@ const JoinedEventsSidebar: React.FC = () => {
 
       {/* --- Event List --- */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
-        {events.map((event) => (
-          <button
-            key={event.id}
-            onClick={() => setActiveTab(event.id)}
-            className={`w-full flex items-center p-4 gap-3 transition-colors hover:bg-slate-50 ${
-              activeTab === event.id ? 'bg-indigo-50' : ''
-            }`}
-          >
-            {/* Avatar Circle */}
-            <div className="relative flex-shrink-0">
-              <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-semibold border border-slate-100">
-                {event.title.charAt(0)}
+        {events && events.length > 0 ? (
+          events.map((event) => (
+            <button
+              key={event.id}
+              onClick={() => onOpenChat(event)}
+              className="w-full flex items-center p-4 gap-3 transition-colors hover:bg-slate-50 border-b border-slate-50 last:border-0"
+            >
+              {/* Avatar Circle */}
+              <div className="relative flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-semibold border border-slate-200">
+                  {event.title.charAt(0)}
+                </div>
               </div>
-            </div>
 
-            {/* Content */}
-            <div className="flex-1 min-w-0 text-left">
-              <div className="flex justify-between items-baseline">
-                <span className="font-semibold text-slate-900 truncate">{event.title}</span>
-                <span className="text-xs text-slate-500">{event.time} - </span>
+              {/* Content */}
+              <div className="flex-1 min-w-0 text-left">
+                <div className="flex justify-between items-baseline">
+                  <span className="font-semibold text-slate-900 truncate">{event.title}</span>
+                  <span className="text-[10px] text-slate-400 uppercase font-medium">
+                    {event.startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-slate-500 truncate mr-2">{event.description}</p>
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <p className="text-sm text-slate-500 truncate mr-2">{event.description}</p>
-              </div>
+            </button>
+          ))
+        ) : (
+          /* --- Empty State --- */
+          <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+              <Search className="text-slate-300" size={24} />
             </div>
-          </button>
-        ))}
+            <p className="text-slate-500 font-medium">No events found</p>
+            <p className="text-slate-400 text-xs mt-1">Try adjusting your search or create a new event.</p>
+          </div>
+        )}
       </div>
-
       {/* --- Bottom Navigation --- */}
       <div className="p-4 border-t border-slate-100 flex justify-around text-slate-500">
         <button className="hover:text-indigo-600 transition-colors">
@@ -81,6 +121,8 @@ const JoinedEventsSidebar: React.FC = () => {
         </button>
       </div>
     </div>
+    </div>
+    </>
   );
 };
 

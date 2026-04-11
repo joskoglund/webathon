@@ -1,77 +1,108 @@
-import React, { useState } from 'react';
-import { MessageSquare, Search, Settings, User, Plus } from 'lucide-react';
-import eventsData from '@/public/testEvents.json';
-import chatData from '@/public/testChatData.json';
+import React, { useEffect, useState } from 'react';
+import { X } from 'lucide-react'; // Changed Cross to X for a standard look
 import { StudentEvent, ChatMessage } from '@/types/events';
+import { getEventChat } from '../Event/EventGetter';
 
 interface ChatWindowProps {
-    event: StudentEvent,
-    userName: String
-    open: boolean,
+    event: StudentEvent;
+    userName: string; // Changed String to string (TS best practice)
+    onClose: () => void;
 }
 
-
-
-const ChatWindow: React.FC<ChatWindowProps> = ( {event, userName, open} ) => {
-  const [activeTab, setActiveTab] = useState('1');
-  const [searchQuery, setSearchQuery] = useState('');
-  const chats: ChatMessage[] = chatData;
+const ChatWindow: React.FC<ChatWindowProps> = ({ event, userName, onClose }) => {
+    const [chats, setChats] = useState<ChatMessage[] | []>([]);
+    const [loading, setLoading] = useState(true);
+  
+    useEffect(() => {
+      let active = true;
+  
+      (async () => {
+        setLoading(true);
+        const fetchedChat = await getEventChat(event.id);
+        if (active) {
+          setChats(fetchedChat ?? null);
+          setLoading(false);
+        }
+      })});
 
   return (
-    <div className="flex flex-col h-screen w-80 border-r border-slate-200 bg-white z-[1000] absolute left-0 top-0">
+    <div className="flex flex-col h-screen w-full bg-white z-[1010] absolute left-0 top-0 transition-all duration-300 ease-in-out shadow-2xl">
+      
       {/* --- Header --- */}
-      <div className="p-4 border-b border-slate-100">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold text-slate-800">Events</h1>
+      <div className="p-4 border-b border-slate-100 bg-white">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-slate-800">{event.title}</h1>
+            <p className="text-xs text-slate-500">Logged in as {userName}</p>
+          </div>
+          
+          {/* CLOSE BUTTON */}
+          <button 
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all"
+            aria-label="Close chat"
+          >
+            <X size={24} />
+          </button>
         </div>
       </div>
 
-        {/* --- Message List --- */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
-        {chatData.map((chat: ChatMessage) => (
-            <button
-            key={chat.id}
-            className="w-full flex items-center p-4 gap-3 transition-colors hover:bg-slate-50 border-b border-slate-50 last:border-0"
+      {/* --- Message List --- */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50">
+        {chats.length > 0 ? (
+          chats.map((chat: ChatMessage) => (
+            <div
+              key={chat.id}
+              className="w-full flex items-start p-4 gap-3 border-b border-slate-50 last:border-0 bg-white"
             >
-            {/* Avatar Circle */}
-            <div className="relative flex-shrink-0">
+              {/* Avatar */}
+              <div className="relative flex-shrink-0">
                 {chat.avatarUrl ? (
-                <img 
+                  <img 
                     src={chat.avatarUrl} 
                     alt={chat.userName} 
-                    className="w-12 h-12 rounded-full object-cover border border-slate-100"
-                />
+                    className="w-10 h-10 rounded-full object-cover border border-slate-100"
+                  />
                 ) : (
-                <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold border border-indigo-200">
+                  <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold border border-indigo-200">
                     {chat.userName.charAt(0)}
-                </div>
+                  </div>
                 )}
-            </div>
+              </div>
 
-            {/* Content */}
-            <div className="flex-1 min-w-0 text-left">
-                <div className="flex justify-between items-baseline">
-                <span className="font-semibold text-slate-900 truncate">
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-baseline mb-1">
+                  <span className="font-semibold text-slate-900 text-sm">
                     {chat.userName}
-                </span>
-                <span className="text-xs text-slate-500 whitespace-nowrap ml-2">
-                    {/* Formats the ISO string or simple time string */}
+                  </span>
+                  <span className="text-[10px] text-slate-400">
                     {new Date(chat.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
+                  </span>
                 </div>
-                <div className="flex justify-between items-center">
-                <p className="text-sm text-slate-500 truncate mr-2">
-                    {chat.message}
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {chat.message}
                 </p>
-                {/* Optional: Add a tag for the eventId if you want to distinguish events */}
-                <span className="text-[10px] bg-slate-100 text-slate-400 px-1 rounded">
-                    {chat.eventId.split('_').pop()}
-                </span>
-                </div>
+              </div>
             </div>
-            </button>
-        ))}
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-slate-400">
+            <p>No messages yet. Start the conversation!</p>
+          </div>
+        )}
+      </div>
+
+      {/* --- Footer (Message Input Placeholder) --- */}
+      <div className="p-4 border-t border-slate-100 bg-white">
+        <div className="flex gap-2">
+          <input 
+            type="text" 
+            placeholder="Type a message..." 
+            className="flex-1 bg-slate-100 border-none rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+          />
         </div>
+      </div>
     </div>
   );
 };

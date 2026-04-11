@@ -13,8 +13,8 @@ export interface StudentEvent {
 }
 
 export interface ChatMessage {
-  id: string;
-  eventId: string;
+  id: number;
+  eventID: string;
   userName: string;
   avatarUrl?: string;
   time: string;

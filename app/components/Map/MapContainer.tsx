@@ -31,6 +31,8 @@ interface MapProps {
   showDraftMarker?: boolean;
   onDraftLocationChange?: (latlng: L.LatLng) => void;
   onRefreshEvents?: () => void;
+  onOpenChat: (event: StudentEvent) => void;
+  events: StudentEvent[];
 }
 
 // Sub-component to handle map interactions
@@ -52,12 +54,14 @@ export default forwardRef(function CampusMap(
     draftLocation = null,
     showDraftMarker = false,
     onDraftLocationChange,
+    onOpenChat
   }: Readonly<MapProps>,
   ref
-) {
-  const [events, setEvents] = useState<StudentEvent[]>([]);
+  ) {
   const popupRefs = useRef<Record<number, L.Popup | null>>({});
   const position: [number, number] = [60.389, 5.332] // Bergen / Campus
+  const [events, setEvents] = useState<StudentEvent[]>([]);
+
 
   const refreshEvents = async () => {
     const dbEvents = await getMapEvents();
@@ -97,6 +101,7 @@ export default forwardRef(function CampusMap(
           <Popup ref={(ref) => { popupRefs.current[event.id] = ref; }}>
             <EventPopup
               eventId={event.id}
+              onOpenChat={onOpenChat}
               onJoin={(id) => console.log(`Joining event ${id}`)}
               onContentReady={() => popupRefs.current[event.id]?.update()}
             />

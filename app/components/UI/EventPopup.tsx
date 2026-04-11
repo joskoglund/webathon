@@ -1,17 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, MessageSquare, Calendar, Flame } from 'lucide-react';
-import ChatWindow from '../Chat/ChatWindow';
 import { StudentEvent } from '@/types/events';
 import { getEvent } from '../Event/EventGetter';
-import { useEffect, useState } from 'react';
 
 interface EventPopupProps {
   eventId: number;
   onJoin?: (id: number) => void;
   onContentReady?: () => void;
+  onOpenChat: (event: StudentEvent) => void;
 }
 
-const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady }) => {
+const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady, onOpenChat }) => {
   const [event, setEvent] = useState<StudentEvent | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -95,7 +94,7 @@ const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady
           Join Event
         </button>
         <button className="flex items-center justify-center w-10 h-8 border border-slate-200 rounded hover:bg-slate-50 text-slate-600 transition-colors"
-          onClick={() => {<ChatWindow event={event} userName={"Demo_user"} open={true}/>}}
+          onClick={() => onOpenChat(event)}
         >
           <MessageSquare size={16} />
         </button>
