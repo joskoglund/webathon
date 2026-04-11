@@ -2,27 +2,71 @@
 
 # StudentWhere
 
-Hustlers
+Team: Hustlers
 
 ## Medlemmer
 
 - Karl-Gustav
-- Jo 
+- Jo
 
 ## Beskrivelse
 
-Sosialt student kart, fungerer litt som snapman der studenter kan sette ned pins på ett kart der man starter ett "Event", Både for å holde åpne studie grupper men også for å ha åpne fester, møter, whatever, en uofisiel webcom event liste.
+StudentWhere er et sosialt studentkart der studenter kan opprette og finne åpne events i sanntid.
 
+Konseptet bygger videre på ideen om et «Snap Map»-lignende kart, men med fokus på studentmiljø:
 
+- Sett en pin på kartet for å opprette et event.
+- Bruk events til åpne studiegrupper, sosiale samlinger, møter, frivillighet eller spontane aktiviteter.
+- Se hvem som har blitt med, og bli med/forlat events direkte fra kartet.
+- Filtrer og søk i events for å finne det som er relevant akkurat nå.
+
+Målet er å gjøre det enklere å oppdage hva som skjer rundt deg på campus, og senke terskelen for å bli med på aktiviteter.
+
+### Hovedfunksjoner
+
+- Interaktivt kart med event-markører
+- Oppretting av nye events via popup
+- Join/leave av events med lokal status + database-oppdatering
+- Chat per event
+- Sidebar med søk og filtrering (eventtype og joined/not joined)
+- Synkronisert filtrering mellom sidebar og kart
+
+## Teknologi
+
+- Next.js + React + TypeScript
+- Supabase (lagring av events, registreringer og chat)
+- Leaflet / React-Leaflet (kart)
+- Tailwind CSS (UI)
 
 ## Kjøre
 
-\<guide på hvordan man kjører/bygger prosjektet>
+Prosjektet er live på:
+
+https://webathon-tau.vercel.app
+
+### Kjøre lokalt:
 
 ```bash
-pnpm i
-
+pnpm install
 pnpm dev
 ```
 
+Åpne deretter `http://localhost:3000` i nettleseren.
+
+### Miljøvariabler
+
+Prosjektet bruker Supabase. Du trenger følgende miljøvariabler i en `.env.local`:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+```
+
 ## Bilder
+
+Legg gjerne inn skjermbilder/GIF-er av:
+
+- Kartvisning
+- Oppretting av event
+- Join/leave flow
+- Filtrering i sidebar
