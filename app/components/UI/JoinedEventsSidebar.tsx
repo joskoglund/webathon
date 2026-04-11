@@ -9,6 +9,7 @@ interface SidebarProps {
 }
 const JoinedEventsSidebar: React.FC<SidebarProps> = ( {onOpenChat}) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeChat, setActiveChat] = useState<number | null>(null);
   const [selectedType, setSelectedType] = useState<'All' | StudentEvent['category']>('All');
   const [isOpen, setIsOpen] = useState(true); // Control visibility
   const [events, setEvents] = useState<StudentEvent[]>([]);
@@ -98,10 +99,11 @@ const JoinedEventsSidebar: React.FC<SidebarProps> = ( {onOpenChat}) => {
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {filteredEvents.length > 0 ? (
           filteredEvents.map((event) => (
+
             <button
               key={event.id}
-              onClick={() => onOpenChat(event)}
-              className="w-full flex items-center p-4 gap-3 transition-colors hover:bg-slate-50 border-b border-slate-50 last:border-0"
+              onClick={() => {setActiveChat(event.id);onOpenChat(event)}}
+              className={`w-full flex items-center p-4 gap-3 transition-colors hover:bg-slate-50 border-b border-slate-50 last:border-0 dsad ${activeChat && (activeChat == event.id) && ("bg-blue-400") }`}
             >
               {/* Avatar Circle */}
               <div className="relative shrink-0">
@@ -135,19 +137,7 @@ const JoinedEventsSidebar: React.FC<SidebarProps> = ( {onOpenChat}) => {
           </div>
         )}
       </div>
-      {/* --- Bottom Navigation --- */}
-      <div className="p-4 border-t border-slate-100 flex justify-around text-slate-500">
-        <button className="hover:text-indigo-600 transition-colors">
-          <MessageSquare size={22} />
-        </button>
-        <button className="hover:text-indigo-600 transition-colors">
-          <User size={22} />
-        </button>
-        <button className="hover:text-indigo-600 transition-colors">
-          <Settings size={22} />
-        </button>
       </div>
-    </div>
     </div>
     </>
   );
