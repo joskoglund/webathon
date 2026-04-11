@@ -26,7 +26,7 @@ const CreateEventBtn: React.FC<CreateEventBtnProps> = ({ onClick, isSelectingLoc
         ) : (
           <>
             <Plus size={20} />
-            <span>Pin New Event</span>
+            <span>Create New Event</span>
           </>
         )}
       </button>
