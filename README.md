@@ -64,9 +64,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 
 ## Bilder
 
-Legg gjerne inn skjermbilder/GIF-er av:
+![alt text](menu.png)
 
-- Kartvisning
-- Oppretting av event
-- Join/leave flow
-- Filtrering i sidebar
+![alt text](addEvent.png)
+
+![alt text](eventMenu.png)
+
+![alt text](chat.png)
+
