@@ -7,31 +7,32 @@ import { supabase } from "@/lib/supabase";
 
 
 interface ChatWindowProps {
-    event: StudentEvent;
+    eventId: number;
     onClose: () => void;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ event, onClose }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ eventId, onClose }) => {
     const [chats, setChats] = useState<ChatMessage[] | []>([]);  
 
+  
     useEffect(() => {
     // 1. Initial Fetch
     const loadChats = async () => {
-        const dbChats = await getEventChat(event.id);
+        const dbChats = await getEventChat(eventId);
         setChats(dbChats);
     };
     loadChats();
 
     // 2. Real-time Subscription
     const channel = supabase
-        .channel(`chat:${event.id}`)
+        .channel(`chat:${eventId}`)
         .on(
         'postgres_changes',
         {
             event: 'INSERT',
             schema: 'public',
             table: 'chatMessages',
-            filter: `eventID=eq.${event.id}`,
+            filter: `eventID=eq.${eventId}`,
         },
         (payload) => {
             // Add the new message to the existing list
@@ -44,7 +45,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ event, onClose }) => {
     return () => {
         supabase.removeChannel(channel);
     };
-    }, [event.id]);
+    }, [eventId]);
 
     const currentUser = localStorage.getItem('userName') || 'Anonymous';
 
@@ -56,7 +57,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ event, onClose }) => {
     <div className="flex items-center justify-between">
       <div>
         <h1 className="text-xl font-bold text-slate-800 truncate max-w-[200px] md:max-w-full">
-          {event.title}
+          {"event"}
         </h1>
         <p className="text-xs text-slate-500">Logged in as {currentUser}</p>
       </div>
@@ -109,7 +110,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ event, onClose }) => {
 
   {/* --- Footer --- */}
   <ChatInput onSendMessage={(text) => {
-      createChatMessage(event.id, currentUser, text);
+      createChatMessage(eventId, currentUser, text);
   }} />    
 </div>
   );

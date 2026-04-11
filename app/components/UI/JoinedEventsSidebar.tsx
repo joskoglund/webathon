@@ -6,17 +6,17 @@ import { getSidebarEvents, isEventJoinedLocally } from '../Event/EventGetter';
 type JoinStateFilter = 'All' | 'Joined' | 'Not Joined';
 
 interface SidebarProps {
-  onOpenChat: (event: StudentEvent) => void;
+  onSelectedEvent: (eventId: (number | null)) => void;
   searchQuery: string;
   onSearchQueryChange: (value: string) => void;
   selectedType: 'All' | StudentEvent['category'];
   onSelectedTypeChange: (value: 'All' | StudentEvent['category']) => void;
   selectedJoinState: JoinStateFilter;
   onSelectedJoinStateChange: (value: JoinStateFilter) => void;
-
+  selectedEventId: number | null
 }
 const JoinedEventsSidebar: React.FC<SidebarProps> = ({
-  onOpenChat,
+  onSelectedEvent, selectedEventId,
   searchQuery,
   onSearchQueryChange,
   selectedType,
@@ -24,7 +24,6 @@ const JoinedEventsSidebar: React.FC<SidebarProps> = ({
   selectedJoinState,
   onSelectedJoinStateChange,
 }) => {
-  const [activeChat, setActiveChat] = useState<number | null>(null);
   const [isOpen, setIsOpen] = useState(true); // Control visibility
   const [events, setEvents] = useState<StudentEvent[]>([]);
 
@@ -131,11 +130,10 @@ const JoinedEventsSidebar: React.FC<SidebarProps> = ({
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {filteredEvents.length > 0 ? (
           filteredEvents.map((event) => (
-
             <button
               key={event.id}
-              onClick={() => {setActiveChat(event.id);onOpenChat(event)}}
-              className={`w-full flex items-center p-4 gap-3 transition-colors hover:bg-slate-50 border-b border-slate-50 last:border-0 dsad ${activeChat && (activeChat == event.id) && ("bg-blue-400") }`}
+              onClick={() => onSelectedEvent(event.id)}
+              className={`w-full flex items-center p-4 gap-3 transition-colors hover:bg-slate-50 border-b border-slate-50 last:border-0 dsad ${selectedEventId && (selectedEventId == event.id) && ("bg-slate-200") }`}
             >
               {/* Avatar Circle */}
               <div className="relative shrink-0">

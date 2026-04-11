@@ -23,7 +23,7 @@ export default function MapPage() {
   const [selectedType, setSelectedType] = useState<'All' | StudentEvent['category']>('All');
   const [selectedJoinState, setSelectedJoinState] = useState<'All' | 'Joined' | 'Not Joined'>('All');
   const mapRef = useRef<{ refresh: () => Promise<void> } | null>(null);
-  const [activeChatEvent, setActiveChatEvent] = useState<StudentEvent | null>(null);
+  const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
 
   const toggleSelectionMode = () => {
     setIsSelectingLocation((prev) => !prev);
@@ -40,7 +40,9 @@ export default function MapPage() {
       {/* Pass the state to the map */}
       <DisplayMap 
         ref={mapRef}
-        onOpenChat={setActiveChatEvent}
+        selectedEventId={selectedEventId}
+        setSelectedEventId={setSelectedEventId}
+
         isSelectingLocation={isSelectingLocation} 
         searchQuery={searchQuery}
         selectedType={selectedType}
@@ -83,7 +85,7 @@ export default function MapPage() {
       )}
       {/* See joined events / chats */}
       <JoinedEventsSidebar 
-        onOpenChat={setActiveChatEvent}
+        onSelectedEvent={setSelectedEventId}
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
         selectedType={selectedType}
@@ -92,10 +94,10 @@ export default function MapPage() {
         onSelectedJoinStateChange={setSelectedJoinState}
       />
       
-      {activeChatEvent && (
+      {selectedEventId && (
         <ChatWindow 
-          event={activeChatEvent} 
-          onClose={() => setActiveChatEvent(null)} 
+          eventId={selectedEventId} 
+          onClose={() => setSelectedEventId(null)} 
         />
       )}
       <link

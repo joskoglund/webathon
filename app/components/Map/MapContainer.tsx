@@ -6,7 +6,7 @@ import L from 'leaflet'
 import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import EventPopup from '../UI/EventPopup'; // Assuming you saved the previous component here
 import { StudentEvent } from '@/types/events';
-import { getMapEvents, joinEvent, leaveEvent, isEventJoinedLocally } from '../Event/EventGetter';
+import { getMapEvents } from '../Event/EventGetter';
 
 // Standard Marker Icon Fix
 const defaultIcon = L.icon({
@@ -32,6 +32,38 @@ const createCategoryIcon = (category: StudentEvent['category']) =>
     iconAnchor: [10, 10],
   });
 
+
+/**
+ * Enhanced MapFocuser: 
+ * Handles both the camera "FlyTo" and triggering the marker's popup.
+ */
+function MapController({ 
+  event, 
+  markerRefs 
+}: { 
+  event: StudentEvent | null; 
+  markerRefs: React.MutableRefObject<Record<number, L.Marker | null>> 
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!event) return;
+
+    // 1. Move the camera
+    map.flyTo([event.latitude, event.longitude], 16, {
+      duration: 1.5,
+    });
+
+    // 2. Find the marker in our "phonebook" and open its popup
+    const marker = markerRefs.current[event.id];
+    if (marker) {
+      marker.openPopup();
+    }
+  }, [event, map, markerRefs]);
+
+  return null;  
+}
+
 interface MapProps {
   isSelectingLocation: boolean;
   onLocationSelected: (latlng: L.LatLng) => void;
@@ -42,7 +74,9 @@ interface MapProps {
   showDraftMarker?: boolean;
   onDraftLocationChange?: (latlng: L.LatLng) => void;
   onRefreshEvents?: () => void;
-  onOpenChat: (event: StudentEvent) => void;
+
+  selectedEventId: number | null;
+  setSelectedEventId: (eventId: number | null) => void;
 }
 
 // Sub-component to handle map interactions
@@ -67,14 +101,17 @@ export default forwardRef(function CampusMap(
     draftLocation = null,
     showDraftMarker = false,
     onDraftLocationChange,
-    onOpenChat
+    selectedEventId,
+    setSelectedEventId
   }: Readonly<MapProps>,
   ref
   ) {
-  const popupRefs = useRef<Record<number, L.Popup | null>>({});
+  const markerRefs = useRef<Record<number, L.Marker | null>>({});
   const position: [number, number] = [60.389, 5.332] // Bergen / Campus
   const [events, setEvents] = useState<StudentEvent[]>([]);
-  
+
+  const currentEvent = events.find(e => e.id === selectedEventId);
+
   const refreshEvents = async () => {
     const dbEvents = await getMapEvents();
     setEvents(dbEvents);
@@ -136,15 +173,20 @@ export default forwardRef(function CampusMap(
         onLocationSelected={onLocationSelected}
       />
 
-      {/* Pre-existing Demo Markers */}
       {filteredEvents.map((event) => (
-        <Marker key={event.id} position={[event.latitude, event.longitude]} icon={createCategoryIcon(event.category)}>
-          <Popup ref={(ref) => { popupRefs.current[event.id] = ref; }}>
+        <Marker 
+          key={event.id} 
+          position={[event.latitude, event.longitude]} 
+          icon={createCategoryIcon(event.category)}
+          // Capture the Marker instance
+          ref={(ref) => { markerRefs.current[event.id] = ref; }}
+        >
+          <Popup>
             <EventPopup
               eventId={event.id}
-              onOpenChat={onOpenChat}
+              onOpenChat={setSelectedEventId}
               onJoin={handleJoinToggle}
-              onContentReady={() => popupRefs.current[event.id]?.update()}
+              onContentReady={() => markerRefs.current[event.id]?.getPopup()?.update()}
             />
           </Popup>
         </Marker>

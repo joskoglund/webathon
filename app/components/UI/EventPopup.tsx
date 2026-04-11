@@ -7,7 +7,7 @@ interface EventPopupProps {
   eventId: number;
   onJoin?: (id: number) => Promise<boolean> | boolean;
   onContentReady?: () => void;
-  onOpenChat: (event: StudentEvent) => void;
+  onOpenChat: (eventId: number | null) => void;
 }
 
 function pad(value: number): string {
@@ -148,7 +148,7 @@ const EventPopup: React.FC<EventPopupProps> = ({ eventId, onJoin, onContentReady
           {isJoined ? 'Leave Event' : 'Join Event'}
         </button>
         <button className="flex items-center justify-center w-10 h-8 border border-slate-200 rounded hover:bg-slate-50 text-slate-600 transition-colors"
-          onClick={() => onOpenChat(event)}
+          onClick={() => onOpenChat(event.id)}
         >
           <MessageSquare size={16} />
         </button>
