@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react'; // Changed Cross to X for a standard look
-import { StudentEvent, ChatMessage } from '@/types/events';
-import { createChatMessage, getEvent, getEventChat } from '../Event/EventGetter';
+import { ChatMessage } from '@/types/events';
+import { createChatMessage, getEventChat } from '../Event/EventGetter';
 import ChatInput from './ChatInput';
 import { supabase } from "@/lib/supabase";
 
@@ -9,20 +9,18 @@ import { supabase } from "@/lib/supabase";
 interface ChatWindowProps {
     eventId: number;
     onClose: () => void;
-    
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ eventId, onClose }) => {
     const [chats, setChats] = useState<ChatMessage[] | []>([]);  
-    const [event, setEvent] = useState<StudentEvent | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
+  
     useEffect(() => {
     // 1. Initial Fetch
     const loadChats = async () => {
         const dbChats = await getEventChat(eventId);
-        const eventData = await getEvent(eventId);
         setChats(dbChats);
-        setEvent(eventData);
     };
     loadChats();
 
@@ -50,6 +48,15 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ eventId, onClose }) => {
     };
     }, [eventId]);
 
+    useEffect(() => {
+      const container = messagesContainerRef.current;
+      if (!container) return;
+
+      requestAnimationFrame(() => {
+        container.scrollTop = container.scrollHeight;
+      });
+    }, [chats]);
+
     const currentUser = localStorage.getItem('userName') || 'Anonymous';
 
   return (
@@ -60,7 +67,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ eventId, onClose }) => {
     <div className="flex items-center justify-between">
       <div>
         <h1 className="text-xl font-bold text-slate-800 truncate max-w-[200px] md:max-w-full">
-          {event?.title}
+          {}
         </h1>
         <p className="text-xs text-slate-500">Logged in as {currentUser}</p>
       </div>
@@ -76,7 +83,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ eventId, onClose }) => {
   </div>
 
   {/* --- Message List --- */}
-  <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50">
+  <div ref={messagesContainerRef} className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50">
     {chats.length > 0 ? (
       chats.map((chat: ChatMessage) => (
         <div
